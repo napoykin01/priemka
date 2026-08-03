@@ -1,0 +1,861 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Приёмка — проверка озвучки перед сдачей</title>
+<style>
+/* ============================================================
+   ПРИЁМКА — токены
+   Хроматика намеренно почти отсутствует: весь цвет в продукте —
+   это вердикт. Индиго = интерфейс, зелёный/красный = результат.
+   Контраст проверен: индиго 8.7:1 (светлая) / 6.1:1 (тёмная).
+   warning и serious на светлом фоне ниже 3:1 — поэтому только
+   заливкой, с иконкой и текстовой подписью, никогда текстом.
+   ============================================================ */
+:root {
+  color-scheme: light;
+  --plane:     #eceae5;
+  --surface:   #faf9f6;
+  --surface-2: #f2f0ec;
+  --ink:       #1a1917;
+  --ink-2:     #55534d;
+  --muted:     #8a877f;
+  --hairline:  #dcd9d2;
+  --accent:    #2f3aa8;
+  --accent-wash: rgba(47,58,168,0.08);
+  --good:      #0ca30c;
+  --good-wash: rgba(12,163,12,0.11);
+  --warning:   #fab219;
+  --warn-wash: rgba(250,178,25,0.18);
+  --critical:  #d03b3b;
+  --crit-wash: rgba(208,59,59,0.11);
+  --wave:      #55534d;
+
+  --serif: "Bookman Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans:  "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono:  Consolas, "Cascadia Mono", ui-monospace, "SF Mono", monospace;
+  --pad: clamp(1rem, 4vw, 2.25rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --plane:     #131217;
+    --surface:   #1c1b21;
+    --surface-2: #24232a;
+    --ink:       #f4f2ee;
+    --ink-2:     #b8b4ac;
+    --muted:     #86827a;
+    --hairline:  #2f2d36;
+    --accent:    #8b93f0;
+    --accent-wash: rgba(139,147,240,0.13);
+    --good-wash: rgba(12,163,12,0.18);
+    --warn-wash: rgba(250,178,25,0.16);
+    --crit-wash: rgba(208,59,59,0.18);
+    --wave:      #b8b4ac;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane:     #131217;
+  --surface:   #1c1b21;
+  --surface-2: #24232a;
+  --ink:       #f4f2ee;
+  --ink-2:     #b8b4ac;
+  --muted:     #86827a;
+  --hairline:  #2f2d36;
+  --accent:    #8b93f0;
+  --accent-wash: rgba(139,147,240,0.13);
+  --good-wash: rgba(12,163,12,0.18);
+  --warn-wash: rgba(250,178,25,0.16);
+  --crit-wash: rgba(208,59,59,0.18);
+  --wave:      #b8b4ac;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --plane:     #eceae5;
+  --surface:   #faf9f6;
+  --surface-2: #f2f0ec;
+  --ink:       #1a1917;
+  --ink-2:     #55534d;
+  --muted:     #8a877f;
+  --hairline:  #dcd9d2;
+  --accent:    #2f3aa8;
+  --accent-wash: rgba(47,58,168,0.08);
+  --good-wash: rgba(12,163,12,0.11);
+  --warn-wash: rgba(250,178,25,0.18);
+  --crit-wash: rgba(208,59,59,0.11);
+  --wave:      #55534d;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--plane); color: var(--ink);
+  font-family: var(--sans); font-size: 15.5px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.wrap { max-width: 940px; margin: 0 auto; padding: 0 var(--pad); }
+.num { font-variant-numeric: tabular-nums; font-family: var(--mono); }
+
+/* ---------- header ---------- */
+.top {
+  border-bottom: 1px solid var(--hairline); background: var(--surface);
+  position: sticky; top: 0; z-index: 30;
+}
+.top__in { display: flex; align-items: center; gap: 1rem; padding: 0.85rem 0; }
+.brand { display: flex; align-items: baseline; gap: 0.6rem; margin-right: auto; min-width: 0; }
+.brand__n {
+  font-family: var(--serif); font-size: 1.42rem; font-weight: 700;
+  letter-spacing: -0.01em; color: var(--ink);
+}
+.brand__t { font-size: 0.82rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tbtn {
+  font: inherit; font-size: 0.78rem; background: none; color: var(--ink-2);
+  border: 1px solid var(--hairline); border-radius: 4px; padding: 0.35rem 0.6rem; cursor: pointer;
+}
+.tbtn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ---------- hero / drop ---------- */
+.hero { padding: clamp(2rem, 6vw, 3.6rem) 0 0; }
+.hero h1 {
+  font-family: var(--serif); font-weight: 400; margin: 0 0 0.55rem;
+  font-size: clamp(1.6rem, 1rem + 2.6vw, 2.6rem); line-height: 1.12;
+  letter-spacing: -0.015em; text-wrap: balance; max-width: 26ch;
+}
+.hero h1 b { font-weight: 700; }
+.hero__p { color: var(--ink-2); max-width: 56ch; margin: 0 0 1.6rem; }
+
+.drop {
+  border: 2px dashed var(--hairline); border-radius: 8px; background: var(--surface);
+  padding: clamp(1.5rem, 5vw, 2.8rem) 1.25rem; text-align: center;
+  transition: border-color 140ms, background 140ms;
+}
+.drop.is-over { border-color: var(--accent); background: var(--accent-wash); }
+.drop__i { font-size: 1.9rem; line-height: 1; margin-bottom: 0.7rem; color: var(--muted); }
+.drop__t { font-weight: 600; margin: 0 0 0.3rem; font-size: 1.02rem; }
+.drop__s { color: var(--muted); font-size: 0.86rem; margin: 0 0 1.15rem; }
+.row { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; }
+.btn {
+  font: inherit; font-weight: 600; font-size: 0.9rem; cursor: pointer;
+  background: var(--accent); color: #fff; border: 1px solid var(--accent);
+  border-radius: 5px; padding: 0.55rem 1.05rem;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn--ghost { background: none; color: var(--accent); }
+.btn--ghost:hover { background: var(--accent-wash); filter: none; }
+.privacy {
+  margin: 0.9rem 0 0; font-size: 0.8rem; color: var(--muted);
+  display: flex; align-items: center; gap: 0.4rem; justify-content: center;
+}
+.privacy b { color: var(--ink-2); font-weight: 600; }
+
+/* ---------- progress ---------- */
+.prog { margin-top: 1.2rem; display: none; }
+.prog.on { display: block; }
+.prog__bar { height: 4px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
+.prog__fill { height: 100%; width: 0; background: var(--accent); transition: width 120ms linear; }
+.prog__l { font-size: 0.8rem; color: var(--muted); margin: 0.45rem 0 0; }
+
+/* ---------- results ---------- */
+.res { margin-top: clamp(1.8rem, 5vw, 2.8rem); display: none; }
+.res.on { display: block; }
+
+.file { background: var(--surface); border: 1px solid var(--hairline); border-radius: 8px; margin-bottom: 1.1rem; overflow: hidden; }
+.file__h { display: flex; align-items: center; gap: 0.9rem; padding: 1rem 1.15rem; flex-wrap: wrap; }
+.file__nm { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 180px; }
+.file__meta { font-size: 0.8rem; color: var(--muted); }
+
+.stamp {
+  font-family: var(--serif); font-weight: 700; font-size: 0.95rem;
+  padding: 0.42rem 0.8rem; border-radius: 5px; white-space: nowrap;
+  display: flex; align-items: center; gap: 0.45rem; letter-spacing: 0.01em;
+}
+.stamp i { font-style: normal; font-size: 1.05em; }
+.stamp--ok   { background: var(--good-wash);  color: var(--ink); }
+.stamp--warn { background: var(--warn-wash);  color: var(--ink); }
+.stamp--bad  { background: var(--crit-wash);  color: var(--ink); }
+.stamp--ok i   { color: var(--good); }
+.stamp--warn i { color: var(--warning); }
+.stamp--bad i  { color: var(--critical); }
+
+.wavebox { padding: 0 1.15rem 0.4rem; }
+.wave { display: block; width: 100%; height: 92px; border-radius: 4px; background: var(--surface-2); }
+.wave__lg { display: flex; flex-wrap: wrap; gap: 0.3rem 1rem; padding: 0.5rem 0 0.9rem; font-size: 0.76rem; color: var(--muted); }
+.wave__lg span { display: flex; align-items: center; gap: 0.35rem; }
+.wave__lg i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+
+/* checks table */
+.checks { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.checks caption {
+  text-align: left; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); padding: 0.9rem 1.15rem 0.5rem; font-weight: 600;
+}
+.checks th, .checks td { text-align: left; padding: 0.6rem 0.7rem; border-top: 1px solid var(--hairline); vertical-align: top; }
+.checks th:first-child, .checks td:first-child { padding-left: 1.15rem; }
+.checks th:last-child, .checks td:last-child { padding-right: 1.15rem; }
+.checks thead th {
+  border-top: 1px solid var(--hairline); font-size: 0.72rem; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--muted); font-weight: 600; padding-top: 0.5rem; padding-bottom: 0.5rem;
+}
+.checks tbody tr:hover { background: var(--surface-2); }
+.c__nm { font-weight: 600; color: var(--ink); }
+.c__hint { color: var(--ink-2); font-size: 0.82rem; margin-top: 0.2rem; max-width: 46ch; }
+.c__val { white-space: nowrap; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.c__req { white-space: nowrap; color: var(--muted); font-family: var(--mono); font-size: 0.82rem; }
+.pill {
+  display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap;
+  font-size: 0.76rem; font-weight: 600; padding: 0.2rem 0.45rem; border-radius: 4px;
+}
+.pill i { font-style: normal; }
+.pill--ok   { background: var(--good-wash); color: var(--ink); }
+.pill--warn { background: var(--warn-wash); color: var(--ink); }
+.pill--bad  { background: var(--crit-wash); color: var(--ink); }
+.pill--na   { background: var(--surface-2); color: var(--ink-2); }
+.pill--ok i   { color: var(--good); }
+.pill--warn i { color: var(--warning); }
+.pill--bad i  { color: var(--critical); }
+
+.file__f { padding: 0.85rem 1.15rem; border-top: 1px solid var(--hairline); display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+/* consistency block */
+.cons { background: var(--surface); border: 1px solid var(--hairline); border-radius: 8px; padding: 1.15rem; margin-bottom: 1.1rem; }
+.cons__t { font-weight: 600; margin: 0 0 0.2rem; }
+.cons__s { color: var(--muted); font-size: 0.84rem; margin: 0 0 1rem; }
+.bars { display: flex; flex-direction: column; gap: 0.5rem; }
+.cbar { display: grid; grid-template-columns: minmax(90px, 160px) 1fr auto; align-items: center; gap: 0.7rem; font-size: 0.83rem; }
+.cbar__n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-2); }
+.cbar__t { height: 12px; background: var(--surface-2); border-radius: 3px; position: relative; overflow: hidden; }
+.cbar__ok { position: absolute; top: 0; bottom: 0; background: var(--good-wash); }
+.cbar__m { position: absolute; top: 0; bottom: 0; width: 3px; border-radius: 2px; background: var(--accent); }
+.cbar__v { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 0.8rem; }
+
+/* ---------- info sections ---------- */
+.sec { padding: clamp(2.2rem, 6vw, 3.4rem) 0 0; }
+.sec h2 { font-family: var(--serif); font-size: clamp(1.2rem, 1rem + 1vw, 1.6rem); margin: 0 0 0.9rem; font-weight: 700; }
+.sec p { color: var(--ink-2); max-width: 62ch; }
+.spec { width: 100%; border-collapse: collapse; font-size: 0.86rem; background: var(--surface); border: 1px solid var(--hairline); border-radius: 8px; overflow: hidden; }
+.spec th, .spec td { text-align: left; padding: 0.62rem 0.9rem; border-bottom: 1px solid var(--hairline); }
+.spec thead th { font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.spec tbody tr:last-child th, .spec tbody tr:last-child td { border-bottom: 0; }
+.spec td:nth-child(2) { font-family: var(--mono); white-space: nowrap; }
+.scroller { overflow-x: auto; }
+
+.next { background: var(--accent-wash); border: 1px solid var(--hairline); border-radius: 8px; padding: 1.25rem; }
+.next__k { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 0.5rem; }
+.next h3 { margin: 0 0 0.5rem; font-size: 1.05rem; }
+.next p { margin: 0 0 0.6rem; }
+.next ul { margin: 0; padding-left: 1.2rem; color: var(--ink-2); font-size: 0.9rem; }
+
+.foot { margin-top: clamp(2.2rem, 6vw, 3.4rem); border-top: 1px solid var(--hairline); padding: 1.3rem 0 2.6rem; }
+.foot p { font-size: 0.79rem; color: var(--muted); max-width: 66ch; margin: 0 0 0.5rem; }
+
+@media (max-width: 620px) {
+  .checks .hide-s { display: none; }
+  .cbar { grid-template-columns: 1fr auto; }
+  .cbar__t { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition-duration: 1ms !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top__in">
+    <div class="brand">
+      <span class="brand__n">Приёмка</span>
+      <span class="brand__t">проверка озвучки перед сдачей</span>
+    </div>
+    <button class="tbtn" id="theme" type="button">Тема</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <h1>Узнайте, что <b>отклонят</b>, до того как отправите</h1>
+    <p class="hero__p">Шесть из десяти записей уходят на перезапись из-за фонового шума — а это слышно за минуту, если знать, где смотреть. Загрузите главы и получите заключение по каждой: что не проходит, насколько и что с этим делать.</p>
+
+    <div class="drop" id="drop">
+      <div class="drop__i" aria-hidden="true">▤</div>
+      <p class="drop__t">Перетащите главы сюда</p>
+      <p class="drop__s">WAV, MP3, FLAC, M4A · можно сразу несколько файлов</p>
+      <div class="row">
+        <button class="btn" id="pick" type="button">Выбрать файлы</button>
+        <button class="btn btn--ghost" id="demo" type="button">Показать на примере</button>
+      </div>
+      <p class="privacy"><span aria-hidden="true">🔒</span> <b>Файлы не загружаются на сервер</b> — весь анализ идёт в вашем браузере</p>
+      <input type="file" id="input" accept="audio/*,.wav,.mp3,.flac,.m4a,.ogg" multiple hidden>
+    </div>
+
+    <div class="prog" id="prog">
+      <div class="prog__bar"><div class="prog__fill" id="progFill"></div></div>
+      <p class="prog__l" id="progLabel">Читаю файл…</p>
+    </div>
+  </section>
+
+  <section class="res" id="res" aria-live="polite">
+    <div id="consBox"></div>
+    <div id="files"></div>
+  </section>
+
+  <section class="sec">
+    <h2>Что именно проверяется</h2>
+    <p>Пороги взяты из опубликованных требований ACX — приёмки аудиокниг Audible и Amazon. Это самый строгий и самый прозрачный стандарт в отрасли; российские площадки требуют то же самое, но публикуют цифры менее формально.</p>
+    <div class="scroller" style="margin-top:1rem">
+      <table class="spec">
+        <thead>
+          <tr><th scope="col">Параметр</th><th scope="col">Требование</th><th scope="col">Почему отклоняют</th></tr>
+        </thead>
+        <tbody id="specBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="next">
+      <p class="next__k">следующий шаг</p>
+      <h3>Сверка записи с текстом книги</h3>
+      <p>Техническая проверка ловит шум и уровни. Но самая дорогая ошибка — пропущенный абзац, который заметят только на приёмке.</p>
+      <ul>
+        <li>расшифровка записи и сверка с исходным текстом</li>
+        <li>пропущенные и лишние фразы с таймкодами</li>
+        <li>перепутанные имена и названия</li>
+        <li>согласованность громкости и тембра между главами</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="foot">
+    <p><strong>Оговорка о порогах.</strong> Значения соответствуют опубликованной спецификации ACX. Требования Литрес Чтеца и Строк могут отличаться — они не публикуют пороги в таком же формальном виде, это нужно уточнять по фактическим отказам. Пороги вынесены в одну константу в коде и меняются в одном месте.</p>
+    <p><strong>Что считается точно, а что приблизительно.</strong> Частота дискретизации, число каналов, длительность, пик, RMS, клиппинг и постоянная составляющая измеряются по декодированному сигналу — это точные значения. Разрядность читается из заголовка WAV; для сжатых форматов она неприменима. Битрейт MP3 оценивается по размеру файла и длительности — это средняя величина, отличить CBR от VBR без разбора кадров нельзя. Шумовой пол берётся как третий процентиль среди 400-миллисекундных окон, то есть измеряется по самым тихим участкам записи.</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============================================================
+     ТРЕБОВАНИЯ — единственное место, где меняются пороги
+     ============================================================ */
+  var SPEC = {
+    sampleRate: { want: 44100, label: "44 100 Гц" },
+    bitDepth:   { want: 16, label: "16 бит (для WAV)" },
+    rms:        { min: -23, max: -18, label: "от −23 до −18 dBFS" },
+    peak:       { max: -3, label: "не выше −3 dBFS" },
+    noise:      { max: -60, label: "не выше −60 dBFS" },
+    clip:       { max: 0, label: "отсутствует" },
+    headSil:    { min: 0.5, max: 1.0, label: "0,5–1,0 с" },
+    tailSil:    { min: 1.0, max: 5.0, label: "1,0–5,0 с" },
+    duration:   { max: 120 * 60, label: "не больше 120 мин" },
+    dc:         { max: -50, label: "ниже −50 dBFS" },
+    bitrate:    { min: 192, label: "от 192 кбит/с" },
+    consistency:{ max: 1.0, label: "разброс RMS между главами до 1 дБ" }
+  };
+
+  var SPEC_ROWS = [
+    ["Частота дискретизации", SPEC.sampleRate.label, "Площадка не примет файл другого формата — это машинная проверка"],
+    ["Разрядность", SPEC.bitDepth.label, "То же: формальное требование к контейнеру"],
+    ["Средняя громкость (RMS)", SPEC.rms.label, "Тихая запись теряется в плейлисте, громкая звучит перегруженно"],
+    ["Пиковый уровень", SPEC.peak.label, "Без запаса по пикам кодирование в MP3 даёт слышимые искажения"],
+    ["Шумовой пол", SPEC.noise.label, "Главная причина отказов: кулер, вентиляция, холодильник за стеной"],
+    ["Клиппинг", SPEC.clip.label, "Срезанные пики слышны как треск, исправить постфактум нельзя"],
+    ["Тишина в начале", SPEC.headSil.label, "Нужен «воздух» перед первым словом, но не пустая пауза"],
+    ["Тишина в конце", SPEC.tailSil.label, "Глава не должна обрываться на последнем слоге"],
+    ["Длительность главы", SPEC.duration.label, "Слишком длинные файлы отклоняются автоматически"],
+    ["Постоянная составляющая", SPEC.dc.label, "Смещение нуля съедает запас по громкости и ломает склейки"],
+    ["Битрейт MP3", SPEC.bitrate.label, "Ниже порога слышны артефакты сжатия на шипящих"],
+    ["Согласованность глав", SPEC.consistency.label, "Скачки громкости между главами — частая причина возврата всей книги"]
+  ];
+
+  (function fillSpec() {
+    var tb = document.getElementById("specBody");
+    SPEC_ROWS.forEach(function (r) {
+      var tr = document.createElement("tr");
+      var th = document.createElement("th");
+      th.setAttribute("scope", "row"); th.textContent = r[0];
+      var td1 = document.createElement("td"); td1.textContent = r[1];
+      var td2 = document.createElement("td"); td2.textContent = r[2];
+      tr.appendChild(th); tr.appendChild(td1); tr.appendChild(td2);
+      tb.appendChild(tr);
+    });
+  })();
+
+  /* ============================================================
+     утилиты
+     ============================================================ */
+  var db = function (x) { return 20 * Math.log10(Math.max(x, 1e-12)); };
+  var fmtDb = function (v) {
+    if (!isFinite(v)) return "—";
+    return (v > 0 ? "+" : "−") + Math.abs(v).toFixed(1).replace(".", ",") + " dBFS";
+  };
+  var fmtTime = function (s) {
+    var m = Math.floor(s / 60), ss = Math.floor(s % 60);
+    return m + ":" + String(ss).padStart(2, "0");
+  };
+  var fmtSec = function (s) { return s.toFixed(2).replace(".", ",") + " с"; };
+  var esc = function (s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; };
+
+  /* читаем разрядность и формат из заголовка WAV */
+  function wavHeader(buf) {
+    try {
+      var dv = new DataView(buf);
+      if (dv.byteLength < 44) return null;
+      if (dv.getUint32(0, false) !== 0x52494646) return null;      // "RIFF"
+      if (dv.getUint32(8, false) !== 0x57415645) return null;      // "WAVE"
+      var off = 12;
+      while (off + 8 <= dv.byteLength) {
+        var id = dv.getUint32(off, false);
+        var size = dv.getUint32(off + 4, true);
+        if (id === 0x666d7420) {                                    // "fmt "
+          return {
+            format: dv.getUint16(off + 8, true),
+            channels: dv.getUint16(off + 10, true),
+            sampleRate: dv.getUint32(off + 12, true),
+            bitDepth: dv.getUint16(off + 22, true)
+          };
+        }
+        off += 8 + size + (size % 2);
+      }
+    } catch (e) { /* повреждённый заголовок — просто нет данных */ }
+    return null;
+  }
+
+  /* ============================================================
+     анализ: один проход по сигналу, с уступкой потока UI
+     ============================================================ */
+  function edgeSilence(chans, len, sr, fromEnd) {
+    var win = Math.max(1, Math.floor(sr * 0.02));                   // 20 мс
+    var thr = Math.pow(10, -45 / 20);
+    var maxScan = Math.min(len, sr * 60);
+    var nch = chans.length, quiet = 0;
+    for (var w = 0; w + win <= maxScan; w += win) {
+      var sum = 0;
+      for (var i = 0; i < win; i++) {
+        var idx = fromEnd ? len - 1 - (w + i) : w + i;
+        var s = 0;
+        for (var c = 0; c < nch; c++) s += chans[c][idx];
+        s /= nch; sum += s * s;
+      }
+      if (Math.sqrt(sum / win) < thr) quiet += win; else break;
+    }
+    return quiet / sr;
+  }
+
+  function analyze(abuf, onProgress) {
+    var sr = abuf.sampleRate, nch = abuf.numberOfChannels, len = abuf.length;
+    var chans = [];
+    for (var c = 0; c < nch; c++) chans.push(abuf.getChannelData(c));
+
+    var BUCKETS = 1400;
+    var bs = Math.max(1, Math.floor(len / BUCKETS));
+    var eMin = new Float32Array(BUCKETS).fill(1);
+    var eMax = new Float32Array(BUCKETS).fill(-1);
+    var clipMark = new Uint8Array(BUCKETS);
+
+    var winLen = Math.max(1, Math.floor(sr * 0.4));
+    var winRms = [];
+    var peak = 0, sumSq = 0, dcSum = 0, clipCount = 0, clipRuns = 0, inClip = false;
+    var wSq = 0, wN = 0;
+    var CHUNK = 1 << 21;
+
+    return new Promise(function (resolve) {
+      var start = 0;
+      function step() {
+        var end = Math.min(len, start + CHUNK);
+        for (var i = start; i < end; i++) {
+          var s = 0;
+          for (var c2 = 0; c2 < nch; c2++) s += chans[c2][i];
+          s /= nch;
+          var a = s < 0 ? -s : s;
+          if (a > peak) peak = a;
+          sumSq += s * s; dcSum += s;
+          var b = (i / bs) | 0; if (b >= BUCKETS) b = BUCKETS - 1;
+          if (s < eMin[b]) eMin[b] = s;
+          if (s > eMax[b]) eMax[b] = s;
+          if (a >= 0.9995) {
+            clipCount++; clipMark[b] = 1;
+            if (!inClip) { clipRuns++; inClip = true; }
+          } else inClip = false;
+          wSq += s * s; wN++;
+          if (wN >= winLen) { winRms.push(Math.sqrt(wSq / wN)); wSq = 0; wN = 0; }
+        }
+        start = end;
+        if (onProgress) onProgress(start / len);
+        if (start < len) setTimeout(step, 0);
+        else {
+          if (wN > 0) winRms.push(Math.sqrt(wSq / wN));
+          var sorted = winRms.slice().sort(function (x, y) { return x - y; });
+          var noise = sorted.length
+            ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.03))]
+            : 0;
+          resolve({
+            sampleRate: sr, channels: nch, duration: len / sr,
+            peakDb: db(peak),
+            rmsDb: db(Math.sqrt(sumSq / len)),
+            noiseDb: db(noise),
+            dcDb: db(Math.abs(dcSum / len)),
+            clipCount: clipCount, clipRuns: clipRuns,
+            headSil: edgeSilence(chans, len, sr, false),
+            tailSil: edgeSilence(chans, len, sr, true),
+            env: { min: eMin, max: eMax, clip: clipMark },
+            noiseLin: noise
+          });
+        }
+      }
+      step();
+    });
+  }
+
+  /* ============================================================
+     правила: измерение -> вердикт
+     ============================================================ */
+  function buildChecks(a, meta) {
+    var out = [];
+    var add = function (nm, val, req, st, hint) { out.push({ nm: nm, val: val, req: req, st: st, hint: hint || "" }); };
+
+    add("Частота дискретизации", a.sampleRate.toLocaleString("ru-RU") + " Гц", SPEC.sampleRate.label,
+      a.sampleRate === SPEC.sampleRate.want ? "ok" : "bad",
+      a.sampleRate === SPEC.sampleRate.want ? "" : "Пересохраните с частотой 44 100 Гц — пересчёт в редакторе на качество не влияет.");
+
+    if (meta.bitDepth) {
+      add("Разрядность", meta.bitDepth + " бит", SPEC.bitDepth.label,
+        meta.bitDepth === SPEC.bitDepth.want ? "ok" : "bad",
+        meta.bitDepth === SPEC.bitDepth.want ? "" : "Экспортируйте в 16 бит. Писать можно в 24 — приводить к 16 только на выходе.");
+    } else {
+      add("Разрядность", "неприменимо", SPEC.bitDepth.label, "na",
+        "Файл сжатый: разрядность есть только у WAV. Проверка сработает, если приложить исходный WAV.");
+    }
+
+    add("Каналы", a.channels === 1 ? "моно" : a.channels + " канала", "моно или стерео, одинаково во всех главах", "ok", "");
+
+    var rmsOk = a.rmsDb >= SPEC.rms.min && a.rmsDb <= SPEC.rms.max;
+    add("Средняя громкость (RMS)", fmtDb(a.rmsDb), SPEC.rms.label, rmsOk ? "ok" : "bad",
+      rmsOk ? "" : (a.rmsDb < SPEC.rms.min
+        ? "Тихо на " + (SPEC.rms.min - a.rmsDb).toFixed(1).replace(".", ",") + " дБ. Поднимите усиление — но сначала уберите шум, иначе он поднимется вместе с голосом."
+        : "Громко на " + (a.rmsDb - SPEC.rms.max).toFixed(1).replace(".", ",") + " дБ. Убавьте усиление, компрессию не добавляйте."));
+
+    var peakOk = a.peakDb <= SPEC.peak.max;
+    add("Пиковый уровень", fmtDb(a.peakDb), SPEC.peak.label, peakOk ? "ok" : "bad",
+      peakOk ? "" : "Нужен запас: ограничьте пики до −3 dBFS. Обычно достаточно лимитера на выходе.");
+
+    var noiseOk = a.noiseDb <= SPEC.noise.max;
+    var noiseSt = noiseOk ? "ok" : (a.noiseDb <= SPEC.noise.max + 6 ? "warn" : "bad");
+    add("Шумовой пол", fmtDb(a.noiseDb), SPEC.noise.label, noiseSt,
+      noiseOk ? "" : "Превышение на " + (a.noiseDb - SPEC.noise.max).toFixed(1).replace(".", ",") +
+        " дБ — это самая частая причина отказа. Источники по порядку вероятности: кулер компьютера, вентиляция, холодильник за стеной, гул от сети. Сначала уберите источник, только потом шумодав: агрессивная чистка делает голос глухим, и это тоже отклоняют.");
+
+    var clipOk = a.clipCount === 0;
+    add("Клиппинг", clipOk ? "нет" : a.clipCount.toLocaleString("ru-RU") + " отсчётов в " + a.clipRuns + " местах",
+      SPEC.clip.label, clipOk ? "ok" : "bad",
+      clipOk ? "" : "Срезанные пики восстановить нельзя — эти фрагменты нужно перезаписать. Места отмечены на волне выше.");
+
+    var hOk = a.headSil >= SPEC.headSil.min && a.headSil <= SPEC.headSil.max;
+    add("Тишина в начале", fmtSec(a.headSil), SPEC.headSil.label, hOk ? "ok" : "warn",
+      hOk ? "" : (a.headSil < SPEC.headSil.min ? "Добавьте паузу перед первым словом." : "Обрежьте лишнюю паузу в начале."));
+
+    var tOk = a.tailSil >= SPEC.tailSil.min && a.tailSil <= SPEC.tailSil.max;
+    add("Тишина в конце", fmtSec(a.tailSil), SPEC.tailSil.label, tOk ? "ok" : "warn",
+      tOk ? "" : (a.tailSil < SPEC.tailSil.min ? "Добавьте паузу после последнего слова — иначе глава звучит обрубленной." : "Обрежьте лишнюю паузу в конце."));
+
+    var dOk = a.duration <= SPEC.duration.max;
+    add("Длительность", fmtTime(a.duration), SPEC.duration.label, dOk ? "ok" : "bad",
+      dOk ? "" : "Разбейте на части.");
+
+    var dcOk = a.dcDb <= SPEC.dc.max;
+    add("Постоянная составляющая", fmtDb(a.dcDb), SPEC.dc.label, dcOk ? "ok" : "warn",
+      dcOk ? "" : "Смещение нуля — включите removal DC offset в редакторе.");
+
+    if (meta.bitrate) {
+      var brOk = meta.bitrate >= SPEC.bitrate.min - 8;
+      add("Битрейт (средний)", Math.round(meta.bitrate) + " кбит/с", SPEC.bitrate.label, brOk ? "ok" : "bad",
+        (brOk ? "" : "Пересохраните с битрейтом 192 кбит/с. ") +
+        "Оценка по размеру файла: отличить CBR от VBR без разбора кадров нельзя.");
+    }
+    return out;
+  }
+
+  function verdict(checks) {
+    if (checks.some(function (c) { return c.st === "bad"; })) return { cls: "bad", icon: "✕", word: "На перезапись" };
+    if (checks.some(function (c) { return c.st === "warn"; })) return { cls: "warn", icon: "!", word: "С замечаниями" };
+    return { cls: "ok", icon: "✓", word: "Принято" };
+  }
+
+  /* ============================================================
+     отрисовка
+     ============================================================ */
+  function drawWave(cv, a) {
+    var ctx = cv.getContext("2d");
+    if (!ctx) return;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = cv.clientWidth, h = cv.clientHeight;
+    if (!w || !h) return;
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var cs = getComputedStyle(document.documentElement);
+    var wave = cs.getPropertyValue("--wave").trim();
+    var crit = cs.getPropertyValue("--critical").trim();
+    var line = cs.getPropertyValue("--hairline").trim();
+    ctx.clearRect(0, 0, w, h);
+
+    var n = a.env.min.length, mid = h / 2;
+
+    /* уровень шумового пола — горизонтальная полоса, чтобы видеть его глазами */
+    var nh = Math.max(0.6, (a.noiseLin || 0) * mid);
+    ctx.fillStyle = line;
+    ctx.fillRect(0, mid - nh, w, nh * 2);
+
+    ctx.fillStyle = wave;
+    for (var i = 0; i < n; i++) {
+      var x = (i / n) * w, bw = Math.max(1, w / n - 0.4);
+      var lo = a.env.min[i], hi = a.env.max[i];
+      if (lo > hi) { lo = 0; hi = 0; }
+      var y1 = mid - hi * mid, y2 = mid - lo * mid;
+      ctx.fillRect(x, y1, bw, Math.max(0.7, y2 - y1));
+    }
+    ctx.fillStyle = crit;
+    for (var j = 0; j < n; j++) {
+      if (a.env.clip[j]) ctx.fillRect((j / n) * w, 0, Math.max(2, w / n), h);
+    }
+  }
+
+  function renderFile(item) {
+    var v = verdict(item.checks);
+    var el = document.createElement("article");
+    el.className = "file";
+
+    var rows = item.checks.map(function (c) {
+      var cls = c.st === "ok" ? "pill--ok" : c.st === "warn" ? "pill--warn" : c.st === "na" ? "pill--na" : "pill--bad";
+      var ic = c.st === "ok" ? "✓" : c.st === "warn" ? "!" : c.st === "na" ? "–" : "✕";
+      var word = c.st === "ok" ? "норма" : c.st === "warn" ? "замечание" : c.st === "na" ? "нет данных" : "не проходит";
+      return '<tr>' +
+        '<td><div class="c__nm">' + esc(c.nm) + '</div>' +
+          (c.hint ? '<div class="c__hint">' + esc(c.hint) + '</div>' : '') + '</td>' +
+        '<td class="c__val">' + esc(c.val) + '</td>' +
+        '<td class="c__req hide-s">' + esc(c.req) + '</td>' +
+        '<td><span class="pill ' + cls + '"><i aria-hidden="true">' + ic + '</i>' + word + '</span></td>' +
+        '</tr>';
+    }).join("");
+
+    el.innerHTML =
+      '<div class="file__h">' +
+        '<span class="file__nm" title="' + esc(item.name) + '">' + esc(item.name) + '</span>' +
+        '<span class="file__meta num">' + fmtTime(item.a.duration) + ' · ' +
+          (item.a.sampleRate / 1000).toFixed(1).replace(".", ",") + ' кГц · ' +
+          (item.a.channels === 1 ? 'моно' : 'стерео') + '</span>' +
+        '<span class="stamp stamp--' + v.cls + '"><i aria-hidden="true">' + v.icon + '</i>' + v.word + '</span>' +
+      '</div>' +
+      '<div class="wavebox">' +
+        '<canvas class="wave"></canvas>' +
+        '<div class="wave__lg">' +
+          '<span><i style="background:var(--wave)"></i>сигнал</span>' +
+          '<span><i style="background:var(--hairline)"></i>шумовой пол</span>' +
+          '<span><i style="background:var(--critical)"></i>клиппинг</span>' +
+        '</div>' +
+      '</div>' +
+      '<table class="checks"><caption>Проверки</caption>' +
+        '<thead><tr><th scope="col">Параметр</th><th scope="col">Измерено</th>' +
+        '<th scope="col" class="hide-s">Требование</th><th scope="col">Итог</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table>' +
+      '<div class="file__f">' +
+        '<button class="btn btn--ghost" type="button" data-copy>Скопировать заключение</button>' +
+      '</div>';
+
+    var cv = el.querySelector(".wave");
+    requestAnimationFrame(function () { drawWave(cv, item.a); });
+    item._cv = cv;
+
+    el.querySelector("[data-copy]").addEventListener("click", function (e) {
+      var lines = ["Приёмка — заключение", item.name, "Вердикт: " + v.word, ""];
+      item.checks.forEach(function (c) {
+        lines.push([c.nm, c.val, "требуется: " + c.req,
+          c.st === "ok" ? "норма" : c.st === "warn" ? "замечание" : c.st === "na" ? "нет данных" : "НЕ ПРОХОДИТ"
+        ].join(" | "));
+        if (c.hint) lines.push("   " + c.hint);
+      });
+      var txt = lines.join("\n");
+      if (navigator.clipboard) navigator.clipboard.writeText(txt);
+      e.target.textContent = "Скопировано";
+      setTimeout(function () { e.target.textContent = "Скопировать заключение"; }, 1600);
+    });
+    return el;
+  }
+
+  function renderConsistency(items) {
+    var box = document.getElementById("consBox");
+    box.innerHTML = "";
+    if (items.length < 2) return;
+
+    var vals = items.map(function (i) { return i.a.rmsDb; });
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    var spread = hi - lo;
+    var ok = spread <= SPEC.consistency.max;
+
+    /* шкала строится по требованию ACX плюс запас, чтобы «зелёная зона» была видна */
+    var axLo = Math.min(lo - 1, SPEC.rms.min - 1.5);
+    var axHi = Math.max(hi + 1, SPEC.rms.max + 1.5);
+    var pos = function (v) { return ((v - axLo) / (axHi - axLo)) * 100; };
+
+    var bars = items.map(function (i) {
+      return '<div class="cbar">' +
+        '<span class="cbar__n" title="' + esc(i.name) + '">' + esc(i.name) + '</span>' +
+        '<span class="cbar__t">' +
+          '<span class="cbar__ok" style="left:' + pos(SPEC.rms.min) + '%;width:' +
+            (pos(SPEC.rms.max) - pos(SPEC.rms.min)) + '%"></span>' +
+          '<span class="cbar__m" style="left:' + pos(i.a.rmsDb) + '%"></span>' +
+        '</span>' +
+        '<span class="cbar__v">' + fmtDb(i.a.rmsDb) + '</span>' +
+        '</div>';
+    }).join("");
+
+    var el = document.createElement("div");
+    el.className = "cons";
+    el.innerHTML =
+      '<p class="cons__t">Согласованность между главами</p>' +
+      '<p class="cons__s">Разброс средней громкости — ' +
+        '<span class="num">' + spread.toFixed(1).replace(".", ",") + ' дБ</span>' +
+        ' при допустимом ' + SPEC.consistency.max.toFixed(1).replace(".", ",") + ' дБ. ' +
+        (ok ? 'Главы звучат ровно.'
+            : 'Слушатель услышит скачок громкости при переходе между главами — из-за этого возвращают книгу целиком, а не отдельный файл.') +
+      '</p>' +
+      '<div style="margin-bottom:0.9rem"><span class="pill ' + (ok ? 'pill--ok' : 'pill--warn') + '">' +
+        '<i aria-hidden="true">' + (ok ? '✓' : '!') + '</i>' + (ok ? 'норма' : 'выровнять громкость') + '</span></div>' +
+      '<div class="bars">' + bars + '</div>' +
+      '<p class="cons__s" style="margin:0.9rem 0 0">Светлая зона — требуемый диапазон RMS, вертикальная метка — измеренное значение главы.</p>';
+    box.appendChild(el);
+  }
+
+  /* ============================================================
+     поток обработки
+     ============================================================ */
+  var items = [];
+  var ac = null;
+  var elProg = document.getElementById("prog");
+  var elFill = document.getElementById("progFill");
+  var elLabel = document.getElementById("progLabel");
+  var elRes = document.getElementById("res");
+  var elFiles = document.getElementById("files");
+
+  function ctx() {
+    if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+    return ac;
+  }
+  function setProg(on, p, label) {
+    elProg.classList.toggle("on", on);
+    if (p != null) elFill.style.width = Math.round(p * 100) + "%";
+    if (label) elLabel.textContent = label;
+  }
+
+  async function handleFiles(list) {
+    var files = Array.prototype.slice.call(list).filter(function (f) {
+      return /\.(wav|mp3|flac|m4a|aac|ogg|opus)$/i.test(f.name) || /^audio\//.test(f.type);
+    });
+    if (!files.length) {
+      setProg(true, 1, "Не нашла аудиофайлов — нужны WAV, MP3, FLAC или M4A.");
+      return;
+    }
+    items = []; elFiles.innerHTML = ""; document.getElementById("consBox").innerHTML = "";
+    elRes.classList.remove("on");
+
+    for (var k = 0; k < files.length; k++) {
+      var f = files[k];
+      var tag = files.length > 1 ? " (" + (k + 1) + " из " + files.length + ")" : "";
+      setProg(true, 0, "Читаю «" + f.name + "»" + tag + "…");
+      try {
+        var raw = await f.arrayBuffer();
+        var hdr = wavHeader(raw.slice(0, Math.min(raw.byteLength, 65536)));
+        setProg(true, 0.06, "Декодирую «" + f.name + "»" + tag + "…");
+        var abuf = await ctx().decodeAudioData(raw.slice(0));
+        var meta = { bitDepth: hdr ? hdr.bitDepth : null, bitrate: null };
+        if (!hdr && abuf.duration > 0) meta.bitrate = (f.size * 8) / abuf.duration / 1000;
+
+        var a = await analyze(abuf, function (p) {
+          setProg(true, 0.06 + p * 0.94, "Анализирую «" + f.name + "»" + tag + " — " + Math.round(p * 100) + "%");
+        });
+        var item = { name: f.name, a: a, checks: buildChecks(a, meta) };
+        items.push(item);
+        elFiles.appendChild(renderFile(item));
+        elRes.classList.add("on");
+      } catch (err) {
+        var bad = document.createElement("article");
+        bad.className = "file";
+        bad.innerHTML = '<div class="file__h"><span class="file__nm">' + esc(f.name) + '</span>' +
+          '<span class="stamp stamp--bad"><i aria-hidden="true">✕</i>Не прочитала</span></div>' +
+          '<div class="wavebox"><p class="cons__s">Браузер не смог декодировать файл. ' +
+          'Чаще всего это значит повреждённый файл или экзотический кодек — попробуйте пересохранить в WAV или MP3.</p></div>';
+        elFiles.appendChild(bad);
+        elRes.classList.add("on");
+      }
+    }
+    renderConsistency(items);
+    setProg(false);
+    elRes.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* демо: синтезируем «речь» с заведомо высоким шумовым полом */
+  async function demo() {
+    setProg(true, 0.2, "Собираю пример записи…");
+    var sr = 44100, dur = 9.5, c = ctx();
+    var buf = c.createBuffer(1, sr * dur, sr);
+    var d = buf.getChannelData(0);
+    var noise = Math.pow(10, -47 / 20);                 // намеренно выше нормы: −47 вместо −60
+    for (var i = 0; i < d.length; i++) {
+      var t = i / sr;
+      var v = (Math.sin(i * 0.0007) + Math.sin(i * 0.0011)) * 0.0007 * Math.sin(i * 0.05);
+      d[i] = v + (Math.sin(i * 12.9898) * 43758.5453 % 1) * noise;
+    }
+    /* фразы: пачки речи с паузами, старт после 0,7 с тишины */
+    for (var ph = 0; ph < 5; ph++) {
+      var s0 = Math.floor((0.7 + ph * 1.6) * sr), s1 = Math.floor(s0 + 1.1 * sr);
+      for (var j = s0; j < s1 && j < d.length; j++) {
+        var k = (j - s0) / (s1 - s0);
+        var env = Math.sin(Math.PI * k) * 0.35;
+        var f = 110 + 40 * Math.sin(k * 9);
+        d[j] += env * (Math.sin(2 * Math.PI * f * j / sr) * 0.6 +
+                       Math.sin(2 * Math.PI * f * 2.1 * j / sr) * 0.25 +
+                       Math.sin(2 * Math.PI * f * 3.4 * j / sr) * 0.12);
+      }
+    }
+    var a = await analyze(buf, function (p) { setProg(true, 0.2 + p * 0.8, "Анализирую пример — " + Math.round(p * 100) + "%"); });
+    items = [{ name: "Пример — глава 01.wav", a: a, checks: buildChecks(a, { bitDepth: 16, bitrate: null }) }];
+    elFiles.innerHTML = ""; document.getElementById("consBox").innerHTML = "";
+    elFiles.appendChild(renderFile(items[0]));
+    elRes.classList.add("on");
+    setProg(false);
+    elRes.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ---------- события ---------- */
+  var drop = document.getElementById("drop");
+  var input = document.getElementById("input");
+  document.getElementById("pick").addEventListener("click", function () { input.click(); });
+  input.addEventListener("change", function () { if (input.files.length) handleFiles(input.files); });
+  document.getElementById("demo").addEventListener("click", demo);
+
+  ["dragenter", "dragover"].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("is-over"); });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("is-over"); });
+  });
+  drop.addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+  });
+
+  document.getElementById("theme").addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var dark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+    items.forEach(function (i) { if (i._cv) drawWave(i._cv, i.a); });
+  });
+
+  var rt = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () { items.forEach(function (i) { if (i._cv) drawWave(i._cv, i.a); }); }, 120);
+  });
+})();
+</script>
+</body>
+</html>
