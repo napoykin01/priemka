@@ -244,12 +244,22 @@ body {
 .wave__lg i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
 
 /* checks table */
-.checks { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+/* table-layout: fixed — таблица никогда не раздувается контентом за
+   пределы карточки (у .file overflow:hidden, раньше правая колонка
+   с плашкой обрезалась, когда «Измерено»/«Требование» стали длинными
+   предложениями у реверберации и гула, а не короткими числами).
+   Ширины колонок объявлены явно; длинный текст просто переносится
+   внутри своей ячейки — строка становится выше, не шире. */
+.checks { width: 100%; border-collapse: collapse; font-size: 0.88rem; table-layout: fixed; }
+.checks th:nth-child(1), .checks td:nth-child(1) { width: 38%; }
+.checks th:nth-child(2), .checks td:nth-child(2) { width: 24%; }
+.checks th:nth-child(3), .checks td:nth-child(3) { width: 22%; }
+.checks th:nth-child(4), .checks td:nth-child(4) { width: 16%; }
 .checks caption {
   text-align: left; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--muted); padding: 0.9rem 1.15rem 0.5rem; font-weight: 600;
 }
-.checks th, .checks td { text-align: left; padding: 0.6rem 0.7rem; border-top: 1px solid var(--hairline); vertical-align: top; }
+.checks th, .checks td { text-align: left; padding: 0.6rem 0.7rem; border-top: 1px solid var(--hairline); vertical-align: top; overflow-wrap: break-word; }
 .checks th:first-child, .checks td:first-child { padding-left: 1.15rem; }
 .checks th:last-child, .checks td:last-child { padding-right: 1.15rem; }
 .checks thead th {
@@ -259,10 +269,10 @@ body {
 .checks tbody tr:hover { background: var(--surface-2); }
 .c__nm { font-weight: 600; color: var(--ink); }
 .c__hint { color: var(--ink-2); font-size: 0.82rem; margin-top: 0.2rem; max-width: 46ch; }
-.c__val { white-space: nowrap; font-family: var(--mono); font-variant-numeric: tabular-nums; }
-.c__req { white-space: nowrap; color: var(--muted); font-family: var(--mono); font-size: 0.82rem; }
+.c__val { font-family: var(--mono); font-variant-numeric: tabular-nums; overflow-wrap: break-word; }
+.c__req { color: var(--muted); font-family: var(--mono); font-size: 0.82rem; overflow-wrap: break-word; }
 .pill {
-  display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 0.3rem;
   font-size: 0.76rem; font-weight: 600; padding: 0.2rem 0.45rem; border-radius: 4px;
 }
 .pill i { font-style: normal; }
@@ -353,6 +363,11 @@ body {
 
 @media (max-width: 620px) {
   .checks .hide-s { display: none; }
+  /* колонка «Требование» скрыта — пересчитываем доли на оставшиеся три,
+     иначе фиксированные ширины из десктопной раскладки не просядут сами */
+  .checks th:nth-child(1), .checks td:nth-child(1) { width: 44%; }
+  .checks th:nth-child(2), .checks td:nth-child(2) { width: 26%; }
+  .checks th:nth-child(4), .checks td:nth-child(4) { width: 30%; }
   .cbar { grid-template-columns: 1fr auto; }
   .cbar__t { grid-column: 1 / -1; }
 }
