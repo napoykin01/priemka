@@ -276,6 +276,9 @@ body {
 
 .file__f { padding: 0.85rem 1.15rem; border-top: 1px solid var(--hairline); display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
 .file__f .note { font-size: 0.79rem; color: var(--muted); }
+.file__f a.btn { text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem; }
+.file__f a.btn i { opacity: 0.6; font-style: normal; }
+.file__f a.btn .price { font-family: var(--mono); opacity: 0.85; }
 
 /* «это не похоже на озвучку» */
 .notspeech {
@@ -1061,6 +1064,17 @@ body {
   };
   var currentProfile = "audiobook";
 
+  /* Ссылка на страницу-заглушку оплаты — с контекстом файла в query,
+     чтобы там показать «что именно чиним», а не голую форму. */
+  function fixHref(item, broken, fixable) {
+    var p = new URLSearchParams();
+    p.set("file", item.name);
+    p.set("profile", PROFILES[currentProfile].label);
+    p.set("fixable", fixable);
+    p.set("guided", broken - fixable);
+    return "oplata.html?" + p.toString();
+  }
+
   function verdict(checks) {
     if (checks.some(function (c) { return c.st === "bad"; })) return { cls: "bad", icon: "✕", word: "На перезапись" };
     if (checks.some(function (c) { return c.st === "warn"; })) return { cls: "warn", icon: "!", word: "С замечаниями" };
@@ -1169,6 +1183,9 @@ body {
         '<th scope="col" class="hide-s">Требование</th><th scope="col">Итог</th></tr></thead>' +
         '<tbody>' + rows + '</tbody></table>' +
       '<div class="file__f">' +
+        (broken && sp.ok
+          ? '<a class="btn" data-fix href="' + fixHref(item, broken, fixable) + '" target="_blank" rel="noopener">Исправить <i aria-hidden="true">·</i> <span class="price">—</span></a>'
+          : '') +
         '<button class="btn btn--ghost" type="button" data-copy>Скопировать заключение</button>' +
         (broken && sp.ok
           ? '<span class="note">Из ' + broken + ' замечаний машинно исправляется ' + fixable +
@@ -1408,15 +1425,16 @@ body {
       fillDrawer();
     }
 
-    /* уже загруженные файлы пересчитываем по новому профилю без повторного декодирования */
-    if (items.length) {
-      items.forEach(function (it) {
-        it.checks = annotate(p.build(it.a, it.meta || {}), key);
-      });
-      elFiles.innerHTML = "";
-      items.forEach(function (it) { elFiles.appendChild(renderFile(it)); });
-      renderConsistency(items);
-    }
+    /* Переключение режима — это смена системы координат (другие пороги,
+       другой смысл цифр), а не перекраска тех же данных. Результаты
+       предыдущего режима сбрасываем целиком, чтобы на экране не
+       путались книга и трек одновременно. */
+    items = [];
+    elFiles.innerHTML = "";
+    document.getElementById("consBox").innerHTML = "";
+    elRes.classList.remove("on");
+    setProg(false);
+    if (input) input.value = "";
   }
 
   var backdrop = document.getElementById("backdrop");

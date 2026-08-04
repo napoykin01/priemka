@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Приёмка — исправление</title>
+<style>
+:root {
+  color-scheme: light;
+  --plane:     #eceae5;
+  --surface:   #faf9f6;
+  --surface-2: #f2f0ec;
+  --ink:       #1a1917;
+  --ink-2:     #55534d;
+  --muted:     #8a877f;
+  --hairline:  #dcd9d2;
+  --accent:    #2f3aa8;
+  --accent-wash: rgba(47,58,168,0.08);
+  --good:      #0ca30c;
+  --good-wash: rgba(12,163,12,0.11);
+  --warn-wash: rgba(250,178,25,0.18);
+  --serif: "Bookman Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans:  "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono:  Consolas, "Cascadia Mono", ui-monospace, "SF Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --plane: #131217; --surface: #1c1b21; --surface-2: #24232a;
+    --ink: #f4f2ee; --ink-2: #b8b4ac; --muted: #86827a; --hairline: #2f2d36;
+    --accent: #8b93f0; --accent-wash: rgba(139,147,240,0.13);
+    --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane: #131217; --surface: #1c1b21; --surface-2: #24232a;
+  --ink: #f4f2ee; --ink-2: #b8b4ac; --muted: #86827a; --hairline: #2f2d36;
+  --accent: #8b93f0; --accent-wash: rgba(139,147,240,0.13);
+  --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --plane: #eceae5; --surface: #faf9f6; --surface-2: #f2f0ec;
+  --ink: #1a1917; --ink-2: #55534d; --muted: #8a877f; --hairline: #dcd9d2;
+  --accent: #2f3aa8; --accent-wash: rgba(47,58,168,0.08);
+  --good-wash: rgba(12,163,12,0.11); --warn-wash: rgba(250,178,25,0.18);
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; background: var(--plane); color: var(--ink);
+  font-family: var(--sans); font-size: 15.5px; line-height: 1.55;
+  display: flex; flex-direction: column;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.top {
+  border-bottom: 1px solid var(--hairline); background: var(--surface);
+  padding: 0.85rem clamp(1rem, 4vw, 2.25rem); display: flex; align-items: center; justify-content: space-between;
+}
+.top a { font-family: var(--serif); font-size: 1.42rem; font-weight: 700; color: var(--ink); text-decoration: none; }
+.tbtn {
+  font: inherit; font-size: 0.78rem; background: none; color: var(--ink-2);
+  border: 1px solid var(--hairline); border-radius: 4px; padding: 0.35rem 0.6rem; cursor: pointer;
+}
+.tbtn:hover { color: var(--accent); border-color: var(--accent); }
+
+main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem clamp(1rem, 4vw, 2.25rem); }
+.card {
+  width: 100%; max-width: 440px; background: var(--surface);
+  border: 1px solid var(--hairline); border-radius: 10px; padding: clamp(1.4rem, 5vw, 2rem);
+}
+.k { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 0.6rem; }
+h1 { font-family: var(--serif); font-size: 1.4rem; margin: 0 0 0.3rem; line-height: 1.25; }
+.file { font-family: var(--mono); font-size: 0.85rem; color: var(--ink-2); word-break: break-all; margin: 0 0 1.3rem; }
+
+.rows { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; }
+.row { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.9rem; padding: 0.55rem 0.7rem; background: var(--surface-2); border-radius: 6px; }
+.row span:first-child { color: var(--ink-2); }
+.row span:last-child { font-family: var(--mono); font-weight: 700; }
+
+.pricebox { text-align: center; padding: 1.3rem 0; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); margin-bottom: 1.4rem; }
+.price { font-family: var(--serif); font-weight: 700; font-size: 2.4rem; color: var(--ink); line-height: 1; }
+.price__note { font-size: 0.82rem; color: var(--muted); margin-top: 0.4rem; }
+
+.btn {
+  font: inherit; font-weight: 600; font-size: 0.95rem; cursor: pointer; width: 100%;
+  background: var(--accent); color: #fff; border: 1px solid var(--accent);
+  border-radius: 6px; padding: 0.7rem 1rem;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+
+.msg {
+  margin-top: 0.9rem; padding: 0.75rem 0.85rem; border-radius: 6px;
+  background: var(--warn-wash); font-size: 0.85rem; color: var(--ink); display: none; line-height: 1.5;
+}
+.msg.on { display: block; }
+
+.back { display: block; text-align: center; margin-top: 1.1rem; font-size: 0.85rem; color: var(--muted); text-decoration: none; }
+.back:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <a href="index.html">Приёмка</a>
+  <button class="tbtn" id="theme" type="button">Тема</button>
+</header>
+
+<main>
+  <div class="card">
+    <p class="k">Исправление</p>
+    <h1 id="profileTitle">Файл</h1>
+    <p class="file" id="fileName">—</p>
+
+    <div class="rows" id="rows"></div>
+
+    <div class="pricebox">
+      <div class="price">—</div>
+      <p class="price__note">Цена ещё не установлена</p>
+    </div>
+
+    <button class="btn" id="payBtn" type="button">Оплатить</button>
+    <p class="msg" id="msg">Это демонстрационная страница — оплата пока не подключена. Здесь появится реальная форма, когда определимся с ценой.</p>
+
+    <a class="back" href="index.html">← вернуться к проверке</a>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var q = new URLSearchParams(location.search);
+  var file = q.get("file") || "";
+  var profile = q.get("profile") || "";
+  var fixable = parseInt(q.get("fixable") || "0", 10);
+  var guided = parseInt(q.get("guided") || "0", 10);
+
+  document.getElementById("profileTitle").textContent = profile ? "Исправление — " + profile : "Исправление";
+  document.getElementById("fileName").textContent = file || "файл не указан";
+
+  var rows = document.getElementById("rows");
+  function addRow(label, val) {
+    var r = document.createElement("div");
+    r.className = "row";
+    r.innerHTML = "<span></span><span></span>";
+    r.children[0].textContent = label;
+    r.children[1].textContent = val;
+    rows.appendChild(r);
+  }
+  if (fixable > 0) addRow("Исправляется автоматически", fixable + (fixable === 1 ? " замечание" : " замечания"));
+  if (guided > 0) addRow("С вашей правкой по инструкции", guided + (guided === 1 ? " пункт" : " пункта"));
+  if (!fixable && !guided) addRow("Замечаний", "нет данных — открыто без контекста файла");
+
+  document.getElementById("payBtn").addEventListener("click", function () {
+    document.getElementById("msg").classList.add("on");
+  });
+
+  document.getElementById("theme").addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var dark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  });
+})();
+</script>
+</body>
+</html>
