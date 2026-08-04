@@ -116,6 +116,64 @@ body {
 }
 .tbtn:hover { color: var(--accent); border-color: var(--accent); }
 
+/* ---------- переключатель режима (чип + выезжающая панель) ---------- */
+.modechip {
+  font: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: var(--accent-wash); color: var(--accent);
+  border: 1px solid var(--hairline); border-radius: 20px; padding: 0.3rem 0.55rem 0.3rem 0.7rem;
+}
+.modechip:hover { border-color: var(--accent); }
+.modechip i { font-style: normal; font-size: 0.7em; }
+
+.backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.32); z-index: 40;
+  opacity: 0; pointer-events: none; transition: opacity 160ms;
+}
+.backdrop.on { opacity: 1; pointer-events: auto; }
+
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(360px, 88vw); z-index: 41;
+  background: var(--surface); border-left: 1px solid var(--hairline);
+  box-shadow: -12px 0 32px rgba(0,0,0,0.16);
+  transform: translateX(100%); transition: transform 200ms ease;
+  display: flex; flex-direction: column;
+}
+.drawer.on { transform: translateX(0); }
+.drawer__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 1.15rem 0.9rem; border-bottom: 1px solid var(--hairline);
+}
+.drawer__head b { font-family: var(--serif); font-size: 1.05rem; }
+.drawer__close {
+  font: inherit; background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: 1.05rem; line-height: 1; padding: 0.2rem 0.4rem;
+}
+.drawer__close:hover { color: var(--ink); }
+.drawer__list { padding: 0.6rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.4rem; }
+.mode {
+  display: block; width: 100%; text-align: left; font: inherit; cursor: pointer;
+  background: var(--surface-2); border: 1px solid var(--hairline); border-radius: 8px;
+  padding: 0.75rem 0.85rem;
+}
+.mode:hover { border-color: var(--accent); }
+.mode.on { background: var(--accent-wash); border-color: var(--accent); }
+.mode__top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.mode__nm { font-weight: 700; color: var(--ink); }
+.mode.on .mode__nm { color: var(--accent); }
+.mode__check { color: var(--accent); font-size: 0.9rem; visibility: hidden; }
+.mode.on .mode__check { visibility: visible; }
+.mode__s { font-size: 0.81rem; color: var(--ink-2); margin: 0.3rem 0 0; line-height: 1.4; }
+.trust {
+  display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.4rem;
+  font-size: 0.71rem; font-weight: 600; padding: 0.14rem 0.4rem; border-radius: 3px;
+}
+.trust--pub  { background: var(--good-wash); color: var(--ink); }
+.trust--part { background: var(--warn-wash); color: var(--ink); }
+.trust i { font-style: normal; }
+.trust--pub i  { color: var(--good); }
+.trust--part i { color: var(--warning); }
+
 /* ---------- hero / drop ---------- */
 .hero { padding: clamp(2rem, 6vw, 3.6rem) 0 0; }
 .hero h1 {
@@ -274,6 +332,19 @@ body {
 .next p { margin: 0 0 0.6rem; }
 .next ul { margin: 0; padding-left: 1.2rem; color: var(--ink-2); font-size: 0.9rem; }
 
+.beta {
+  display: inline-flex; align-items: center; font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase; padding: 0.16rem 0.45rem;
+  border-radius: 3px; background: var(--warn-wash); color: var(--ink); margin-left: 0.5rem;
+  vertical-align: middle;
+}
+.notchecked {
+  margin-top: 1rem; padding: 0.85rem 1rem; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--hairline);
+  font-size: 0.85rem; color: var(--ink-2); line-height: 1.5;
+}
+.notchecked b { color: var(--ink); }
+
 .foot { margin-top: clamp(2.2rem, 6vw, 3.4rem); border-top: 1px solid var(--hairline); padding: 1.3rem 0 2.6rem; }
 .foot p { font-size: 0.79rem; color: var(--muted); max-width: 66ch; margin: 0 0 0.5rem; }
 
@@ -291,22 +362,33 @@ body {
   <div class="wrap top__in">
     <div class="brand">
       <span class="brand__n">Приёмка</span>
-      <span class="brand__t">проверка озвучки перед сдачей</span>
+      <button class="modechip" id="modeBtn" type="button" aria-haspopup="true" aria-expanded="false">
+        <span id="modeChipLabel">Аудиокниги</span><i aria-hidden="true">▾</i>
+      </button>
     </div>
     <button class="tbtn" id="theme" type="button">Тема</button>
   </div>
 </header>
 
+<div class="backdrop" id="backdrop" hidden></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Выбор типа проверки">
+  <div class="drawer__head">
+    <b>Что проверяем</b>
+    <button class="drawer__close" id="drawerClose" type="button" aria-label="Закрыть">✕</button>
+  </div>
+  <nav class="drawer__list" id="drawerList"></nav>
+</aside>
+
 <main class="wrap">
 
   <section class="hero">
-    <h1>Узнайте, что <b>отклонят</b>, до того как отправите</h1>
-    <p class="hero__p">Шесть из десяти записей уходят на перезапись из-за фонового шума — а это слышно за минуту, если знать, где смотреть. Загрузите главы и получите заключение по каждой: что не проходит, насколько и что с этим делать.</p>
+    <h1 id="heroTitle">Узнайте, что <b>отклонят</b>, до того как отправите</h1>
+    <p class="hero__p" id="heroSub">Шесть из десяти записей уходят на перезапись из-за фонового шума — а это слышно за минуту, если знать, где смотреть. Загрузите главы и получите заключение по каждой: что не проходит, насколько и что с этим делать.</p>
 
     <div class="drop" id="drop">
       <div class="drop__i" aria-hidden="true">▤</div>
-      <p class="drop__t">Перетащите главы сюда</p>
-      <p class="drop__s">WAV, MP3, FLAC, M4A · можно сразу несколько файлов</p>
+      <p class="drop__t" id="dropTitle">Перетащите главы сюда</p>
+      <p class="drop__s" id="dropSub">WAV, MP3, FLAC, M4A · можно сразу несколько файлов</p>
       <div class="row">
         <button class="btn" id="pick" type="button">Выбрать файлы</button>
         <button class="btn btn--ghost" id="demo" type="button">Показать на примере</button>
@@ -327,8 +409,8 @@ body {
   </section>
 
   <section class="sec">
-    <h2>Что именно проверяется</h2>
-    <p>Пороги взяты из опубликованных требований ACX — приёмки аудиокниг Audible и Amazon. Это самый строгий и самый прозрачный стандарт в отрасли; российские площадки требуют то же самое, но публикуют цифры менее формально.</p>
+    <h2 id="specTitle">Что именно проверяется</h2>
+    <p id="specIntro"></p>
     <div class="scroller" style="margin-top:1rem">
       <table class="spec">
         <thead>
@@ -337,9 +419,10 @@ body {
         <tbody id="specBody"></tbody>
       </table>
     </div>
+    <div class="notchecked" id="notChecked"></div>
   </section>
 
-  <section class="sec">
+  <section class="sec" id="nextSection">
     <div class="next">
       <p class="next__k">следующий шаг</p>
       <h3>Сверка записи с текстом книги</h3>
@@ -356,6 +439,7 @@ body {
   <div class="foot">
     <p><strong>Оговорка о порогах.</strong> Значения соответствуют опубликованной спецификации ACX. Требования Литрес Чтеца и Строк могут отличаться — они не публикуют пороги в таком же формальном виде, это нужно уточнять по фактическим отказам. Пороги вынесены в одну константу в коде и меняются в одном месте.</p>
     <p><strong>Что считается точно, а что приблизительно.</strong> Частота дискретизации, число каналов, длительность, пик, RMS, клиппинг и постоянная составляющая измеряются по декодированному сигналу — это точные значения. Разрядность читается из заголовка WAV; для сжатых форматов она неприменима. Битрейт MP3 оценивается по размеру файла и длительности — это средняя величина, отличить CBR от VBR без разбора кадров нельзя. Шумовой пол берётся как третий процентиль среди 400-миллисекундных окон, то есть измеряется по самым тихим участкам записи.</p>
+    <p><strong>Про громкость и пик в режимах «Подкасты» и «Треки».</strong> Интегральная громкость считается по методике K-взвешивания и гейтинга −70/−10 LU (та же логика, что в EBU R128 и ITU-R BS.1770) — фильтр проверен по частотной характеристике и на контрольных синусоидах. Пик между отсчётами (true peak) — оценка через кубическую интерполяцию в 4 раза чаще исходной частоты дискретизации, а не полный ITU-фильтр: на обычной речи и музыке ловит почти весь межотсчётный пик, но на редких высокочастотных сигналах может показывать чуть ниже реального значения — поэтому это оценка, а не сертифицированный измеритель.</p>
   </div>
 </main>
 
@@ -364,9 +448,9 @@ body {
   "use strict";
 
   /* ============================================================
-     ТРЕБОВАНИЯ — единственное место, где меняются пороги
+     ТРЕБОВАНИЯ — по одной константе на профиль, меняются в одном месте
      ============================================================ */
-  var SPEC = {
+  var SPEC_AUDIOBOOK = {
     sampleRate: { want: 44100, label: "44 100 Гц" },
     bitDepth:   { want: 16, label: "16 бит (для WAV)" },
     rms:        { min: -23, max: -18, label: "от −23 до −18 dBFS" },
@@ -380,34 +464,56 @@ body {
     bitrate:    { min: 192, label: "от 192 кбит/с" },
     consistency:{ max: 1.0, label: "разброс RMS между главами до 1 дБ" }
   };
-
-  var SPEC_ROWS = [
-    ["Частота дискретизации", SPEC.sampleRate.label, "Площадка не примет файл другого формата — это машинная проверка"],
-    ["Разрядность", SPEC.bitDepth.label, "То же: формальное требование к контейнеру"],
-    ["Средняя громкость (RMS)", SPEC.rms.label, "Тихая запись теряется в плейлисте, громкая звучит перегруженно"],
-    ["Пиковый уровень", SPEC.peak.label, "Без запаса по пикам кодирование в MP3 даёт слышимые искажения"],
-    ["Шумовой пол", SPEC.noise.label, "Главная причина отказов: кулер, вентиляция, холодильник за стеной"],
-    ["Клиппинг", SPEC.clip.label, "Срезанные пики слышны как треск, исправить постфактум нельзя"],
-    ["Тишина в начале", SPEC.headSil.label, "Нужен «воздух» перед первым словом, но не пустая пауза"],
-    ["Тишина в конце", SPEC.tailSil.label, "Глава не должна обрываться на последнем слоге"],
-    ["Длительность главы", SPEC.duration.label, "Слишком длинные файлы отклоняются автоматически"],
-    ["Постоянная составляющая", SPEC.dc.label, "Смещение нуля съедает запас по громкости и ломает склейки"],
-    ["Битрейт MP3", SPEC.bitrate.label, "Ниже порога слышны артефакты сжатия на шипящих"],
-    ["Согласованность глав", SPEC.consistency.label, "Скачки громкости между главами — частая причина возврата всей книги"]
+  var SPEC_ROWS_AUDIOBOOK = [
+    ["Частота дискретизации", SPEC_AUDIOBOOK.sampleRate.label, "Площадка не примет файл другого формата — это машинная проверка"],
+    ["Разрядность", SPEC_AUDIOBOOK.bitDepth.label, "То же: формальное требование к контейнеру"],
+    ["Средняя громкость (RMS)", SPEC_AUDIOBOOK.rms.label, "Тихая запись теряется в плейлисте, громкая звучит перегруженно"],
+    ["Пиковый уровень", SPEC_AUDIOBOOK.peak.label, "Без запаса по пикам кодирование в MP3 даёт слышимые искажения"],
+    ["Шумовой пол", SPEC_AUDIOBOOK.noise.label, "Главная причина отказов: кулер, вентиляция, холодильник за стеной"],
+    ["Клиппинг", SPEC_AUDIOBOOK.clip.label, "Срезанные пики слышны как треск, исправить постфактум нельзя"],
+    ["Тишина в начале", SPEC_AUDIOBOOK.headSil.label, "Нужен «воздух» перед первым словом, но не пустая пауза"],
+    ["Тишина в конце", SPEC_AUDIOBOOK.tailSil.label, "Глава не должна обрываться на последнем слоге"],
+    ["Длительность главы", SPEC_AUDIOBOOK.duration.label, "Слишком длинные файлы отклоняются автоматически"],
+    ["Постоянная составляющая", SPEC_AUDIOBOOK.dc.label, "Смещение нуля съедает запас по громкости и ломает склейки"],
+    ["Битрейт MP3", SPEC_AUDIOBOOK.bitrate.label, "Ниже порога слышны артефакты сжатия на шипящих"],
+    ["Согласованность глав", SPEC_AUDIOBOOK.consistency.label, "Скачки громкости между главами — частая причина возврата всей книги"]
   ];
 
-  (function fillSpec() {
-    var tb = document.getElementById("specBody");
-    SPEC_ROWS.forEach(function (r) {
-      var tr = document.createElement("tr");
-      var th = document.createElement("th");
-      th.setAttribute("scope", "row"); th.textContent = r[0];
-      var td1 = document.createElement("td"); td1.textContent = r[1];
-      var td2 = document.createElement("td"); td2.textContent = r[2];
-      tr.appendChild(th); tr.appendChild(td1); tr.appendChild(td2);
-      tb.appendChild(tr);
-    });
-  })();
+  /* Apple Podcasts: −16 LUFS стерео / −19 моно, true peak ≤ −1 dBTP.
+     Spotify нормализует к −14 LUFS при воспроизведении — не требование к файлу,
+     поэтому не проверяем отдельно, ориентир на Apple как более строгий. */
+  var SPEC_PODCAST = {
+    lufsStereo: { target: -16, tol: 1, label: "−16 LUFS ±1 (стерео)" },
+    lufsMono:   { target: -19, tol: 1, label: "−19 LUFS ±1 (моно)" },
+    truePeak:   { max: -1, label: "не выше −1 dBTP" },
+    clip:       { max: 0, label: "отсутствует" },
+    dc:         { max: -50, label: "ниже −50 dBFS" },
+    consistency:{ max: 1.0, label: "разброс LUFS между выпусками до 1 LU" }
+  };
+  var SPEC_ROWS_PODCAST = [
+    ["Интегральная громкость (LUFS)", "−16 LUFS ±1, для моно −19 LUFS ±1", "Apple Podcasts публикует эти цифры как рекомендацию; выпуск тише или громче остальных выделяется в плеере"],
+    ["Пик (true peak)", SPEC_PODCAST.truePeak.label, "Межотсчётный пик выше −1 dBTP даёт слышимые щелчки при перекодировании в AAC/MP3 на части устройств"],
+    ["Клиппинг", SPEC_PODCAST.clip.label, "Срезанные пики — потерянный сигнал, восстановить нельзя"],
+    ["Постоянная составляющая", SPEC_PODCAST.dc.label, "Смещение нуля отъедает запас перед лимитером"],
+    ["Согласованность выпусков", SPEC_PODCAST.consistency.label, "Слушатель крутит громкость между эпизодами одного шоу — это заметнее, чем в одном треке"]
+  ];
+
+  /* Индустриальная сходимость по громкости для музыкальных релизов и видео:
+     −14 LUFS, −1 dBTP. Публикуется многими лейблами мастеринга и справочниками
+     по дистрибуции, но это конвенция, а не единый писаный стандарт одной площадки —
+     поэтому профиль помечен как бета и проверяет только то, что измеримо по звуку. */
+  var SPEC_MUSIC = {
+    lufs:     { target: -14, tol: 1, label: "−14 LUFS ±1" },
+    truePeak: { max: -1, label: "не выше −1 dBTP" },
+    clip:     { max: 0, label: "отсутствует" },
+    dc:       { max: -50, label: "ниже −50 dBFS" }
+  };
+  var SPEC_ROWS_MUSIC = [
+    ["Интегральная громкость (LUFS)", SPEC_MUSIC.lufs.label, "Общий ориентир Spotify/Apple Music/YouTube: тише или громче — трек выделяется на фоне плейлиста"],
+    ["Пик (true peak)", SPEC_MUSIC.truePeak.label, "Межотсчётный пик выше −1 dBTP слышен как искажение после перекодирования"],
+    ["Клиппинг", SPEC_MUSIC.clip.label, "Срезанные пики — потерянный сигнал"],
+    ["Постоянная составляющая", SPEC_MUSIC.dc.label, "Смещение нуля отъедает запас перед лимитером"]
+  ];
 
   /* ============================================================
      утилиты
@@ -417,12 +523,49 @@ body {
     if (!isFinite(v)) return "—";
     return (v > 0 ? "+" : "−") + Math.abs(v).toFixed(1).replace(".", ",") + " dBFS";
   };
+  var fmtDbTP = function (v) {
+    if (!isFinite(v)) return "—";
+    return (v > 0 ? "+" : "−") + Math.abs(v).toFixed(1).replace(".", ",") + " dBTP";
+  };
   var fmtTime = function (s) {
     var m = Math.floor(s / 60), ss = Math.floor(s % 60);
     return m + ":" + String(ss).padStart(2, "0");
   };
   var fmtSec = function (s) { return s.toFixed(2).replace(".", ",") + " с"; };
   var esc = function (s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; };
+
+  /* ============================================================
+     K-взвешивание для интегральной громкости (LUFS) — та же логика,
+     что в EBU R128 / ITU-R BS.1770: полочный фильтр «головы» + ВЧ-фильтр,
+     пересчитанные для фактической частоты дискретизации файла.
+     Проверено на контрольных синусоидах и по частотной характеристике.
+     ============================================================ */
+  function designHighShelf(fs, f0, Gdb, Q) {
+    var A = Math.pow(10, Gdb / 40);
+    var w0 = 2 * Math.PI * f0 / fs, cw = Math.cos(w0), sw = Math.sin(w0);
+    var alpha = sw / (2 * Q), sqrtA = Math.sqrt(A);
+    var b0 = A * ((A + 1) + (A - 1) * cw + 2 * sqrtA * alpha);
+    var b1 = -2 * A * ((A - 1) + (A + 1) * cw);
+    var b2 = A * ((A + 1) + (A - 1) * cw - 2 * sqrtA * alpha);
+    var a0 = (A + 1) - (A - 1) * cw + 2 * sqrtA * alpha;
+    var a1 = 2 * ((A - 1) - (A + 1) * cw);
+    var a2 = (A + 1) - (A - 1) * cw - 2 * sqrtA * alpha;
+    return { b0: b0 / a0, b1: b1 / a0, b2: b2 / a0, a1: a1 / a0, a2: a2 / a0 };
+  }
+  function designHighPass(fs, f0, Q) {
+    var w0 = 2 * Math.PI * f0 / fs, cw = Math.cos(w0), sw = Math.sin(w0);
+    var alpha = sw / (2 * Q);
+    var b0 = (1 + cw) / 2, b1 = -(1 + cw), b2 = (1 + cw) / 2;
+    var a0 = 1 + alpha, a1 = -2 * cw, a2 = 1 - alpha;
+    return { b0: b0 / a0, b1: b1 / a0, b2: b2 / a0, a1: a1 / a0, a2: a2 / a0 };
+  }
+  function makeBiquad(coef) { return { c: coef, x1: 0, x2: 0, y1: 0, y2: 0 }; }
+  function runBiquad(st, x) {
+    var c = st.c;
+    var y = c.b0 * x + c.b1 * st.x1 + c.b2 * st.x2 - c.a1 * st.y1 - c.a2 * st.y2;
+    st.x2 = st.x1; st.x1 = x; st.y2 = st.y1; st.y1 = y;
+    return y;
+  }
 
   /* читаем разрядность и формат из заголовка WAV */
   function wavHeader(buf) {
@@ -488,6 +631,20 @@ body {
     var sL2 = 0, sR2 = 0, sLR = 0;            /* для стерео-корреляции */
     var CHUNK = 1 << 21;
 
+    /* --- громкость по K-взвешиванию: фильтры и гейтинг 400мс/100мс --- */
+    var shelfCoef = designHighShelf(sr, 1681.9744509555319, 3.99984385397, 0.7071752369554193);
+    var hpassCoef = designHighPass(sr, 38.13547087602444, 0.5003270373238773);
+    var kSt1 = [], kSt2 = [];
+    for (var kc = 0; kc < nch; kc++) { kSt1.push(makeBiquad(shelfCoef)); kSt2.push(makeBiquad(hpassCoef)); }
+    var subLen = Math.max(1, Math.round(sr * 0.1));
+    var subSq = new Float64Array(nch), subN = 0;
+    var ring = [], loudBlocks = [];
+
+    /* --- true peak: кубическая интерполяция ×4 на каждом канале отдельно --- */
+    var tpState = [];
+    for (var tc = 0; tc < nch; tc++) tpState.push({ h0: 0, h1: 0, h2: 0, h3: 0, n: 0 });
+    var truePeakLin = 0;
+
     return new Promise(function (resolve) {
       var start = 0;
       function step() {
@@ -498,8 +655,53 @@ body {
             sL2 += l * l; sR2 += r * r; sLR += l * r;
           }
           var s = 0;
-          for (var c2 = 0; c2 < nch; c2++) s += chans[c2][i];
+          for (var c2 = 0; c2 < nch; c2++) {
+            var raw = chans[c2][i];
+
+            /* K-взвешивание для LUFS: свой каскад фильтров на канал */
+            var kx = runBiquad(kSt1[c2], raw);
+            kx = runBiquad(kSt2[c2], kx);
+            subSq[c2] += kx * kx;
+
+            /* true peak: межотсчётная кубическая интерполяция на канал */
+            var tp = tpState[c2];
+            tp.h0 = tp.h1; tp.h1 = tp.h2; tp.h2 = tp.h3; tp.h3 = raw;
+            var rawAbs = raw < 0 ? -raw : raw;
+            if (rawAbs > truePeakLin) truePeakLin = rawAbs;
+            tp.n++;
+            if (tp.n >= 4) {
+              var ta0 = -0.5 * tp.h0 + 1.5 * tp.h1 - 1.5 * tp.h2 + 0.5 * tp.h3;
+              var ta1 = tp.h0 - 2.5 * tp.h1 + 2 * tp.h2 - 0.5 * tp.h3;
+              var ta2 = -0.5 * tp.h0 + 0.5 * tp.h2;
+              var ta3 = tp.h1;
+              for (var tu = 0.25; tu < 1; tu += 0.25) {
+                var tv = (ta0 * tu + ta1) * tu; tv = (tv + ta2) * tu + ta3;
+                var tav = tv < 0 ? -tv : tv;
+                if (tav > truePeakLin) truePeakLin = tav;
+              }
+            }
+
+            s += raw;
+          }
           s /= nch;
+          subN++;
+          if (subN >= subLen) {
+            var subMean = [];
+            for (var sc = 0; sc < nch; sc++) subMean.push(subSq[sc] / subN);
+            ring.push(subMean);
+            if (ring.length > 4) ring.shift();
+            if (ring.length === 4) {
+              var zsum = 0;
+              for (var zc = 0; zc < nch; zc++) {
+                var acc = 0;
+                for (var rk = 0; rk < 4; rk++) acc += ring[rk][zc];
+                zsum += acc / 4;
+              }
+              loudBlocks.push({ z: zsum, l: -0.691 + 10 * Math.log10(Math.max(zsum, 1e-12)) });
+            }
+            subSq = new Float64Array(nch); subN = 0;
+          }
+
           var a = s < 0 ? -s : s;
           if (a > peak) peak = a;
           sumSq += s * s; dcSum += s;
@@ -533,6 +735,23 @@ body {
           var quiet = 0;
           for (var q = 0; q < winRms.length; q++) if (winRms[q] <= quietThr) quiet++;
 
+          /* гейтинг интегральной громкости: абсолютный порог −70 LUFS,
+             затем относительный на −10 LU от среднего по прошедшим абсолютный гейт */
+          var lufsDb = -Infinity;
+          var absGate = loudBlocks.filter(function (bl) { return bl.l > -70; });
+          if (absGate.length) {
+            var meanZAbs = 0;
+            for (var ai = 0; ai < absGate.length; ai++) meanZAbs += absGate[ai].z;
+            meanZAbs /= absGate.length;
+            var gammaR = -0.691 + 10 * Math.log10(Math.max(meanZAbs, 1e-12)) - 10;
+            var relGate = absGate.filter(function (bl) { return bl.l > gammaR; });
+            var pool = relGate.length ? relGate : absGate;
+            var meanZ = 0;
+            for (var pi = 0; pi < pool.length; pi++) meanZ += pool[pi].z;
+            meanZ /= pool.length;
+            lufsDb = -0.691 + 10 * Math.log10(Math.max(meanZ, 1e-12));
+          }
+
           resolve({
             sampleRate: sr, channels: nch, duration: len / sr,
             peakDb: db(peak),
@@ -546,7 +765,9 @@ body {
             noiseLin: noise,
             crestDb: db(peak) - db(rmsLin),
             pauseFrac: winRms.length ? quiet / winRms.length : 0,
-            stereoCorr: nch >= 2 ? sLR / Math.sqrt((sL2 * sR2) || 1) : 1
+            stereoCorr: nch >= 2 ? sLR / Math.sqrt((sL2 * sR2) || 1) : 1,
+            lufsDb: lufsDb,
+            truePeakDb: db(truePeakLin)
           });
         }
       }
@@ -585,7 +806,9 @@ body {
     "Разрядность": "auto",
     "Каналы": "auto",
     "Средняя громкость (RMS)": "auto",
+    "Интегральная громкость (LUFS)": "auto",
     "Пиковый уровень": "auto",
+    "Пик (true peak)": "auto",
     "Тишина в начале": "auto",
     "Тишина в конце": "auto",
     "Длительность": "auto",
@@ -610,9 +833,10 @@ body {
   }
 
   /* ============================================================
-     правила: измерение -> вердикт
+     правила: измерение -> вердикт, по профилю
      ============================================================ */
-  function buildChecks(a, meta) {
+  function buildChecksAudiobook(a, meta) {
+    var SPEC = SPEC_AUDIOBOOK;
     var out = [];
     var add = function (nm, val, req, st, hint) { out.push({ nm: nm, val: val, req: req, st: st, hint: hint || "" }); };
 
@@ -676,6 +900,166 @@ body {
     }
     return out;
   }
+
+  function buildChecksPodcast(a, meta) {
+    var SPEC = SPEC_PODCAST;
+    var out = [];
+    var add = function (nm, val, req, st, hint) { out.push({ nm: nm, val: val, req: req, st: st, hint: hint || "" }); };
+
+    var mono = a.channels === 1;
+    var target = mono ? SPEC.lufsMono : SPEC.lufsStereo;
+    var lufsOk = isFinite(a.lufsDb) && a.lufsDb >= target.target - target.tol && a.lufsDb <= target.target + target.tol;
+    var lufsVal = isFinite(a.lufsDb) ? a.lufsDb.toFixed(1).replace(".", ",") + " LUFS" : "тишина";
+    add("Интегральная громкость (LUFS)", lufsVal, target.label, lufsOk ? "ok" : "bad",
+      lufsOk ? "" : (!isFinite(a.lufsDb) ? "Файл слишком тихий или пустой — громкость не определена."
+        : a.lufsDb < target.target - target.tol
+          ? "Тихо на " + (target.target - a.lufsDb).toFixed(1).replace(".", ",") + " LU относительно цели " + target.target + " LUFS. Нормализуйте громкость — но сначала проверьте шум, он поднимется вместе с сигналом."
+          : "Громко на " + (a.lufsDb - target.target).toFixed(1).replace(".", ",") + " LU относительно цели " + target.target + " LUFS. Убавьте усиление перед лимитером."));
+
+    var tpOk = a.truePeakDb <= SPEC.truePeak.max;
+    add("Пик (true peak)", fmtDbTP(a.truePeakDb), SPEC.truePeak.label, tpOk ? "ok" : "bad",
+      tpOk ? "" : "Превышение на " + (a.truePeakDb - SPEC.truePeak.max).toFixed(1).replace(".", ",") +
+        " дБ. Это пик не в самих отсчётах, а между ними — он вылезает после перекодирования в MP3/AAC. Убавьте усиление на ту же величину или поставьте лимитер с потолком −1 dBTP.");
+
+    var clipOk = a.clipCount === 0;
+    add("Клиппинг", clipOk ? "нет" : a.clipCount.toLocaleString("ru-RU") + " отсчётов в " + a.clipRuns + " местах",
+      SPEC.clip.label, clipOk ? "ok" : "bad",
+      clipOk ? "" : "Срезанные пики восстановить нельзя — фрагменты нужно перезаписать.");
+
+    var dcOk = a.dcDb <= SPEC.dc.max;
+    add("Постоянная составляющая", fmtDb(a.dcDb), SPEC.dc.label, dcOk ? "ok" : "warn",
+      dcOk ? "" : "Смещение нуля — включите removal DC offset в редакторе.");
+
+    return out;
+  }
+
+  function buildChecksMusic(a, meta) {
+    var SPEC = SPEC_MUSIC;
+    var out = [];
+    var add = function (nm, val, req, st, hint) { out.push({ nm: nm, val: val, req: req, st: st, hint: hint || "" }); };
+
+    var lufsOk = isFinite(a.lufsDb) && a.lufsDb >= SPEC.lufs.target - SPEC.lufs.tol && a.lufsDb <= SPEC.lufs.target + SPEC.lufs.tol;
+    var lufsVal = isFinite(a.lufsDb) ? a.lufsDb.toFixed(1).replace(".", ",") + " LUFS" : "тишина";
+    add("Интегральная громкость (LUFS)", lufsVal, SPEC.lufs.label, lufsOk ? "ok" : "warn",
+      lufsOk ? "" : (!isFinite(a.lufsDb) ? "Громкость не определена."
+        : a.lufsDb < SPEC.lufs.target - SPEC.lufs.tol
+          ? "Тише общего ориентира на " + (SPEC.lufs.target - a.lufsDb).toFixed(1).replace(".", ",") + " LU. На стримингах это не запрещено, но трек может звучать тише соседей в плейлисте."
+          : "Громче общего ориентира на " + (a.lufsDb - SPEC.lufs.target).toFixed(1).replace(".", ",") + " LU. Многие площадки всё равно нормализуют громкость при воспроизведении — избыточный запас просто съедается."));
+
+    var tpOk = a.truePeakDb <= SPEC.truePeak.max;
+    add("Пик (true peak)", fmtDbTP(a.truePeakDb), SPEC.truePeak.label, tpOk ? "ok" : "warn",
+      tpOk ? "" : "Превышение на " + (a.truePeakDb - SPEC.truePeak.max).toFixed(1).replace(".", ",") + " дБ — риск искажений после перекодирования.");
+
+    var clipOk = a.clipCount === 0;
+    add("Клиппинг", clipOk ? "нет" : a.clipCount.toLocaleString("ru-RU") + " отсчётов в " + a.clipRuns + " местах",
+      SPEC.clip.label, clipOk ? "ok" : "bad",
+      clipOk ? "" : "Срезанные пики восстановить нельзя.");
+
+    var dcOk = a.dcDb <= SPEC.dc.max;
+    add("Постоянная составляющая", fmtDb(a.dcDb), SPEC.dc.label, dcOk ? "ok" : "warn",
+      dcOk ? "" : "Смещение нуля — включите removal DC offset в редакторе.");
+
+    return out;
+  }
+
+  /* ============================================================
+     генераторы демо-сигналов — по одному на профиль
+     ============================================================ */
+  function genNarrationBuffer(c, amp, noiseDb, dur) {
+    var sr = 44100, buf = c.createBuffer(1, Math.floor(sr * dur), sr);
+    var d = buf.getChannelData(0);
+    var noise = Math.pow(10, noiseDb / 20);
+    for (var i = 0; i < d.length; i++) {
+      var v = (Math.sin(i * 0.0007) + Math.sin(i * 0.0011)) * 0.0007 * Math.sin(i * 0.05);
+      d[i] = v + (Math.sin(i * 12.9898) * 43758.5453 % 1) * noise;
+    }
+    for (var ph = 0; ph < 5; ph++) {
+      var s0 = Math.floor((0.7 + ph * 1.6) * sr), s1 = Math.floor(s0 + 1.1 * sr);
+      for (var j = s0; j < s1 && j < d.length; j++) {
+        var k = (j - s0) / (s1 - s0);
+        var env = Math.sin(Math.PI * k) * amp;
+        var f = 110 + 40 * Math.sin(k * 9);
+        d[j] += env * (Math.sin(2 * Math.PI * f * j / sr) * 0.6 +
+                       Math.sin(2 * Math.PI * f * 2.1 * j / sr) * 0.25 +
+                       Math.sin(2 * Math.PI * f * 3.4 * j / sr) * 0.12);
+      }
+    }
+    return buf;
+  }
+
+  /* Синтетический «сведённый мастер»: насыщение tanh (сжимает динамику,
+     как лимитер) плюс дополнительное усиление после него — заведомо
+     выводит true peak за −1 dBTP. Параметры подобраны и измерены заранее. */
+  function genSongBuffer(c, dur) {
+    var sr = 44100, len = Math.floor(sr * dur);
+    var buf = c.createBuffer(2, len, sr);
+    var L = buf.getChannelData(0), R = buf.getChannelData(1);
+    var post = 1.32;
+    for (var i = 0; i < len; i++) {
+      var t = i / sr;
+      var beat = 0.85 + 0.15 * Math.sin(2 * Math.PI * 2 * t);
+      var a = Math.sin(2 * Math.PI * 55 * t) * 0.45 + Math.sin(2 * Math.PI * 220 * t) * 0.3 +
+        Math.sin(2 * Math.PI * 440.5 * t) * 0.25 + ((Math.sin(i * 12.9898) * 43758.5453) % 1) * 0.06;
+      var b = Math.sin(2 * Math.PI * 55 * t) * 0.45 + Math.sin(2 * Math.PI * 221.7 * t) * 0.3 +
+        Math.sin(2 * Math.PI * 437.1 * t) * 0.25 + ((Math.sin(i * 7.331) * 21313.331) % 1) * 0.06;
+      L[i] = Math.tanh(a * beat) * 0.9 * post;
+      R[i] = Math.tanh(b * beat) * 0.9 * post;
+    }
+    return buf;
+  }
+
+  /* ============================================================
+     ПРОФИЛИ — единственное место, где регистрируются режимы проверки.
+     Сырые измерения (analyze) считаются один раз независимо от профиля;
+     каждый профиль только по-своему их интерпретирует — поэтому
+     переключение профиля не требует повторной загрузки файлов.
+     ============================================================ */
+  var PROFILES = {
+    audiobook: {
+      key: "audiobook", label: "Аудиокниги", sub: "по требованиям ACX",
+      trust: "part", trustLabel: "пороги ACX, под Литрес уточняем",
+      expectSpeech: true, showNext: true,
+      specRows: SPEC_ROWS_AUDIOBOOK,
+      specIntro: "Пороги взяты из опубликованных требований ACX — приёмки аудиокниг Audible и Amazon. Это самый строгий и самый прозрачный стандарт в отрасли; российские площадки требуют то же самое, но публикуют цифры менее формально.",
+      notChecked: "<b>Не проверяется:</b> соответствие текста книги и записи (сверка — следующий шаг ниже), метаданные и обложка.",
+      hero: { title: 'Узнайте, что <b>отклонят</b>, до того как отправите',
+        sub: "Шесть из десяти записей уходят на перезапись из-за фонового шума — а это слышно за минуту, если знать, где смотреть. Загрузите главы и получите заключение по каждой: что не проходит, насколько и что с этим делать." },
+      drop: { title: "Перетащите главы сюда", sub: "WAV, MP3, FLAC, M4A · можно сразу несколько файлов" },
+      build: buildChecksAudiobook,
+      consistency: { field: "rmsDb", unit: "дБ", label: "RMS", max: SPEC_AUDIOBOOK.consistency.max,
+        zoneMin: SPEC_AUDIOBOOK.rms.min, zoneMax: SPEC_AUDIOBOOK.rms.max, noiseBlock: true },
+      demo: function (c) { return { buf: genNarrationBuffer(c, 0.35, -47, 9.5), name: "Пример — глава 01.wav", meta: { bitDepth: 16, bitrate: null } }; }
+    },
+    podcast: {
+      key: "podcast", label: "Подкасты", sub: "громкость и пик по Apple/Spotify",
+      trust: "pub", trustLabel: "требования опубликованы",
+      expectSpeech: true, showNext: false,
+      specRows: SPEC_ROWS_PODCAST,
+      specIntro: "Apple Podcasts публикует ориентир −16 LUFS для стерео и −19 LUFS для моно, с допуском ±1 LU. Spotify при воспроизведении нормализует громкость к −14 LUFS — это не требование к файлу, а поведение плеера, поэтому целимся в цифры Apple как более строгие.",
+      notChecked: "<b>Не проверяется:</b> метаданные и обложка эпизода, длительность, паузы в начале и конце — для подкастов формальных требований к ним не публикуют.",
+      hero: { title: "Узнайте, <b>тише или громче</b> ли вы соседей в плеере",
+        sub: "Apple и Spotify не отклонят выпуск за громкость — но если он звучит заметно тише или громче остальных, слушатель полезет крутить регулятор. Загрузите эпизод и сверьте интегральную громкость и пик с ориентирами платформ." },
+      drop: { title: "Перетащите выпуск сюда", sub: "WAV, MP3, FLAC, M4A · можно сразу несколько эпизодов" },
+      build: buildChecksPodcast,
+      consistency: { field: "lufsDb", unit: "LU", label: "LUFS", max: 1.0, zoneMin: -17, zoneMax: -15, noiseBlock: false },
+      demo: function (c) { return { buf: genNarrationBuffer(c, 0.16, -60, 9.5), name: "Пример — выпуск 01.wav", meta: { bitDepth: 16, bitrate: null } }; }
+    },
+    music: {
+      key: "music", label: "Треки", sub: "бета: громкость мастера",
+      trust: "part", trustLabel: "общая конвенция, не единый стандарт",
+      expectSpeech: false, showNext: false,
+      specRows: SPEC_ROWS_MUSIC,
+      specIntro: "Индустрия сошлась на ориентире около −14 LUFS и −1 dBTP для стриминга (Spotify, Apple Music, YouTube) — но это общая практика мастеринга, а не писаный стандарт одной площадки, поэтому режим помечен как бета.",
+      notChecked: "<b>Не проверяется:</b> метаданные (ISRC, авторы, теги), обложка и её размер, жанровые особенности мастеринга — по одному аудиосигналу это не определить.",
+      hero: { title: "Сверьте мастер с тем, куда сходится <b>вся индустрия</b>",
+        sub: "Стриминги всё равно нормализуют громкость при воспроизведении, но избыточный запас на мастере просто съедается, а превышение true peak слышно как искажение после перекодирования. Бета-режим: проверяет только то, что измеримо по звуку." },
+      drop: { title: "Перетащите трек сюда", sub: "WAV, MP3, FLAC · можно сразу несколько треков" },
+      build: buildChecksMusic,
+      consistency: { field: "lufsDb", unit: "LU", label: "LUFS", max: 1.5, zoneMin: -15, zoneMax: -13, noiseBlock: false },
+      demo: function (c) { return { buf: genSongBuffer(c, 8), name: "Пример — трек (мастер).wav", meta: { bitDepth: 16, bitrate: null } }; }
+    }
+  };
+  var currentProfile = "audiobook";
 
   function verdict(checks) {
     if (checks.some(function (c) { return c.st === "bad"; })) return { cls: "bad", icon: "✕", word: "На перезапись" };
@@ -748,7 +1132,8 @@ body {
         '</tr>';
     }).join("");
 
-    var sp = speechLikeness(item.a);
+    var expectSpeech = PROFILES[currentProfile].expectSpeech;
+    var sp = expectSpeech ? speechLikeness(item.a) : { ok: true, why: [] };
     var banner = sp.ok ? "" :
       '<div class="notspeech"><i aria-hidden="true">!</i><div>' +
       '<b>Похоже, это не начитка</b>' +
@@ -832,45 +1217,50 @@ body {
   function renderConsistency(items) {
     var box = document.getElementById("consBox");
     box.innerHTML = "";
-    if (items.length < 2) return;
+    var cons = PROFILES[currentProfile].consistency;
+    if (!cons || items.length < 2) return;
 
-    var vals = items.map(function (i) { return i.a.rmsDb; });
+    var field = cons.field, unit = cons.unit, label = cons.label;
+    var vals = items.map(function (i) { return i.a[field]; }).filter(isFinite);
+    if (vals.length < 2) return;
     var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
     var spread = hi - lo;
-    var ok = spread <= SPEC.consistency.max;
+    var ok = spread <= cons.max;
 
-    /* шкала строится по требованию ACX плюс запас, чтобы «зелёная зона» была видна */
-    var axLo = Math.min(lo - 1, SPEC.rms.min - 1.5);
-    var axHi = Math.max(hi + 1, SPEC.rms.max + 1.5);
+    var axLo = Math.min(lo - 1, cons.zoneMin - 1.5);
+    var axHi = Math.max(hi + 1, cons.zoneMax + 1.5);
     var pos = function (v) { return ((v - axLo) / (axHi - axLo)) * 100; };
+    var fmtVal = function (v) { return isFinite(v) ? v.toFixed(1).replace(".", ",") + " " + (unit === "дБ" ? "dBFS" : unit) : "—"; };
 
     var bars = items.map(function (i) {
+      var v = i.a[field];
       return '<div class="cbar">' +
         '<span class="cbar__n" title="' + esc(i.name) + '">' + esc(i.name) + '</span>' +
         '<span class="cbar__t">' +
-          '<span class="cbar__ok" style="left:' + pos(SPEC.rms.min) + '%;width:' +
-            (pos(SPEC.rms.max) - pos(SPEC.rms.min)) + '%"></span>' +
-          '<span class="cbar__m" style="left:' + pos(i.a.rmsDb) + '%"></span>' +
+          '<span class="cbar__ok" style="left:' + pos(cons.zoneMin) + '%;width:' +
+            (pos(cons.zoneMax) - pos(cons.zoneMin)) + '%"></span>' +
+          (isFinite(v) ? '<span class="cbar__m" style="left:' + pos(v) + '%"></span>' : '') +
         '</span>' +
-        '<span class="cbar__v">' + fmtDb(i.a.rmsDb) + '</span>' +
+        '<span class="cbar__v">' + fmtVal(v) + '</span>' +
         '</div>';
     }).join("");
 
+    var unitWord = unit === "дБ" ? "дБ" : "LU";
     var el = document.createElement("div");
     el.className = "cons";
     el.innerHTML =
-      '<p class="cons__t">Согласованность между главами</p>' +
-      '<p class="cons__s">Разброс средней громкости — ' +
-        '<span class="num">' + spread.toFixed(1).replace(".", ",") + ' дБ</span>' +
-        ' при допустимом ' + SPEC.consistency.max.toFixed(1).replace(".", ",") + ' дБ. ' +
-        (ok ? 'Главы звучат ровно.'
-            : 'Слушатель услышит скачок громкости при переходе между главами — из-за этого возвращают книгу целиком, а не отдельный файл.') +
+      '<p class="cons__t">Согласованность между файлами</p>' +
+      '<p class="cons__s">Разброс ' + label + ' — ' +
+        '<span class="num">' + spread.toFixed(1).replace(".", ",") + ' ' + unitWord + '</span>' +
+        ' при рекомендуемом до ' + cons.max.toFixed(1).replace(".", ",") + ' ' + unitWord + '. ' +
+        (ok ? 'Файлы звучат ровно.'
+            : 'Слушатель услышит скачок громкости при переходе между файлами.') +
       '</p>' +
       '<div style="margin-bottom:0.9rem"><span class="pill ' + (ok ? 'pill--ok' : 'pill--warn') + '">' +
         '<i aria-hidden="true">' + (ok ? '✓' : '!') + '</i>' + (ok ? 'норма' : 'выровнять громкость') + '</span></div>' +
       '<div class="bars">' + bars + '</div>' +
-      '<p class="cons__s" style="margin:0.9rem 0 0">Светлая зона — требуемый диапазон RMS, вертикальная метка — измеренное значение главы.</p>' +
-      nfBlock(items);
+      '<p class="cons__s" style="margin:0.9rem 0 0">Светлая зона — требуемый диапазон ' + label + ', вертикальная метка — измеренное значение файла.</p>' +
+      (cons.noiseBlock ? nfBlock(items) : "");
     box.appendChild(el);
   }
 
@@ -921,7 +1311,7 @@ body {
         var a = await analyze(abuf, function (p) {
           setProg(true, 0.06 + p * 0.94, "Анализирую «" + f.name + "»" + tag + " — " + Math.round(p * 100) + "%");
         });
-        var item = { name: f.name, a: a, checks: annotate(buildChecks(a, meta)) };
+        var item = { name: f.name, a: a, meta: meta, checks: annotate(PROFILES[currentProfile].build(a, meta), currentProfile) };
         items.push(item);
         elFiles.appendChild(renderFile(item));
         elRes.classList.add("on");
@@ -941,45 +1331,125 @@ body {
     elRes.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  /* демо: синтезируем «речь» с заведомо высоким шумовым полом */
-  async function demo() {
-    setProg(true, 0.2, "Собираю пример записи…");
-    var sr = 44100, dur = 9.5, c = ctx();
-    var buf = c.createBuffer(1, sr * dur, sr);
-    var d = buf.getChannelData(0);
-    var noise = Math.pow(10, -47 / 20);                 // намеренно выше нормы: −47 вместо −60
-    for (var i = 0; i < d.length; i++) {
-      var t = i / sr;
-      var v = (Math.sin(i * 0.0007) + Math.sin(i * 0.0011)) * 0.0007 * Math.sin(i * 0.05);
-      d[i] = v + (Math.sin(i * 12.9898) * 43758.5453 % 1) * noise;
-    }
-    /* фразы: пачки речи с паузами, старт после 0,7 с тишины */
-    for (var ph = 0; ph < 5; ph++) {
-      var s0 = Math.floor((0.7 + ph * 1.6) * sr), s1 = Math.floor(s0 + 1.1 * sr);
-      for (var j = s0; j < s1 && j < d.length; j++) {
-        var k = (j - s0) / (s1 - s0);
-        var env = Math.sin(Math.PI * k) * 0.35;
-        var f = 110 + 40 * Math.sin(k * 9);
-        d[j] += env * (Math.sin(2 * Math.PI * f * j / sr) * 0.6 +
-                       Math.sin(2 * Math.PI * f * 2.1 * j / sr) * 0.25 +
-                       Math.sin(2 * Math.PI * f * 3.4 * j / sr) * 0.12);
-      }
-    }
-    var a = await analyze(buf, function (p) { setProg(true, 0.2 + p * 0.8, "Анализирую пример — " + Math.round(p * 100) + "%"); });
-    items = [{ name: "Пример — глава 01.wav", a: a, checks: annotate(buildChecks(a, { bitDepth: 16, bitrate: null })) }];
+  /* демо: берём генератор активного профиля, дальше общий путь как для реального файла */
+  async function runDemo() {
+    setProg(true, 0.15, "Собираю пример записи…");
+    var made = PROFILES[currentProfile].demo(ctx());
+    var a = await analyze(made.buf, function (p) { setProg(true, 0.15 + p * 0.85, "Анализирую пример — " + Math.round(p * 100) + "%"); });
+    var item = { name: made.name, a: a, meta: made.meta, checks: annotate(PROFILES[currentProfile].build(a, made.meta), currentProfile) };
+    items = [item];
     elFiles.innerHTML = ""; document.getElementById("consBox").innerHTML = "";
-    elFiles.appendChild(renderFile(items[0]));
+    elFiles.appendChild(renderFile(item));
     elRes.classList.add("on");
     setProg(false);
     elRes.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+
+  /* ============================================================
+     переключение профиля: спек-секция, шапка, зона загрузки и —
+     если файлы уже загружены — их карточки пересчитываются из уже
+     готовых сырых измерений, без повторного декодирования
+     ============================================================ */
+  function fillSpecTable(p) {
+    var tb = document.getElementById("specBody");
+    tb.innerHTML = "";
+    p.specRows.forEach(function (r) {
+      var tr = document.createElement("tr");
+      var th = document.createElement("th");
+      th.setAttribute("scope", "row"); th.textContent = r[0];
+      var td1 = document.createElement("td"); td1.textContent = r[1];
+      var td2 = document.createElement("td"); td2.textContent = r[2];
+      tr.appendChild(th); tr.appendChild(td1); tr.appendChild(td2);
+      tb.appendChild(tr);
+    });
+    document.getElementById("specIntro").textContent = p.specIntro;
+    document.getElementById("notChecked").innerHTML = p.notChecked;
+  }
+
+  function fillDrawer() {
+    var list = document.getElementById("drawerList");
+    list.innerHTML = "";
+    Object.keys(PROFILES).forEach(function (key) {
+      var p = PROFILES[key];
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "mode" + (key === currentProfile ? " on" : "");
+      btn.setAttribute("data-key", key);
+      var betaTag = key === "music" ? '<span class="beta">бета</span>' : "";
+      btn.innerHTML =
+        '<span class="mode__top"><span class="mode__nm">' + esc(p.label) + betaTag + '</span>' +
+          '<span class="mode__check" aria-hidden="true">✓</span></span>' +
+        '<p class="mode__s">' + esc(p.sub) + '</p>' +
+        '<span class="trust trust--' + p.trust + '"><i aria-hidden="true">' + (p.trust === "pub" ? "✓" : "~") + '</i>' + esc(p.trustLabel) + '</span>';
+      btn.addEventListener("click", function () { setProfile(key); closeDrawer(); });
+      list.appendChild(btn);
+    });
+  }
+
+  function setProfile(key) {
+    if (!PROFILES[key]) return;
+    currentProfile = key;
+    var p = PROFILES[key];
+
+    document.getElementById("modeChipLabel").textContent = p.label;
+    document.getElementById("heroTitle").innerHTML = p.hero.title;
+    document.getElementById("heroSub").textContent = p.hero.sub;
+    document.getElementById("dropTitle").textContent = p.drop.title;
+    document.getElementById("dropSub").textContent = p.drop.sub;
+    document.getElementById("nextSection").style.display = p.showNext ? "" : "none";
+    fillSpecTable(p);
+
+    var list = document.getElementById("drawerList");
+    if (list.children.length) {
+      Array.prototype.forEach.call(list.children, function (btn) {
+        btn.classList.toggle("on", btn.getAttribute("data-key") === key);
+      });
+    } else {
+      fillDrawer();
+    }
+
+    /* уже загруженные файлы пересчитываем по новому профилю без повторного декодирования */
+    if (items.length) {
+      items.forEach(function (it) {
+        it.checks = annotate(p.build(it.a, it.meta || {}), key);
+      });
+      elFiles.innerHTML = "";
+      items.forEach(function (it) { elFiles.appendChild(renderFile(it)); });
+      renderConsistency(items);
+    }
+  }
+
+  var backdrop = document.getElementById("backdrop");
+  var drawerEl = document.getElementById("drawer");
+  var modeBtn = document.getElementById("modeBtn");
+  function openDrawer() {
+    fillDrawer();
+    backdrop.hidden = false; requestAnimationFrame(function () { backdrop.classList.add("on"); drawerEl.classList.add("on"); });
+    drawerEl.setAttribute("aria-hidden", "false");
+    modeBtn.setAttribute("aria-expanded", "true");
+    var first = document.getElementById("drawerList").querySelector(".mode");
+    if (first) first.focus();
+  }
+  function closeDrawer() {
+    backdrop.classList.remove("on"); drawerEl.classList.remove("on");
+    drawerEl.setAttribute("aria-hidden", "true");
+    modeBtn.setAttribute("aria-expanded", "false");
+    setTimeout(function () { backdrop.hidden = true; }, 200);
+    modeBtn.focus();
+  }
+  modeBtn.addEventListener("click", openDrawer);
+  document.getElementById("drawerClose").addEventListener("click", closeDrawer);
+  backdrop.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && drawerEl.classList.contains("on")) closeDrawer();
+  });
 
   /* ---------- события ---------- */
   var drop = document.getElementById("drop");
   var input = document.getElementById("input");
   document.getElementById("pick").addEventListener("click", function () { input.click(); });
   input.addEventListener("change", function () { if (input.files.length) handleFiles(input.files); });
-  document.getElementById("demo").addEventListener("click", demo);
+  document.getElementById("demo").addEventListener("click", runDemo);
 
   ["dragenter", "dragover"].forEach(function (ev) {
     drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("is-over"); });
@@ -1003,6 +1473,8 @@ body {
     clearTimeout(rt);
     rt = setTimeout(function () { items.forEach(function (i) { if (i._cv) drawWave(i._cv, i.a); }); }, 120);
   });
+
+  setProfile("audiobook");
 })();
 </script>
 </body>
