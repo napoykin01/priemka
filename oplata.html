@@ -19,6 +19,7 @@
   --good:      #0ca30c;
   --good-wash: rgba(12,163,12,0.11);
   --warn-wash: rgba(250,178,25,0.18);
+  --crit-wash: rgba(208,59,59,0.11);
   --serif: "Bookman Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
   --sans:  "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
   --mono:  Consolas, "Cascadia Mono", ui-monospace, "SF Mono", monospace;
@@ -29,7 +30,7 @@
     --plane: #131217; --surface: #1c1b21; --surface-2: #24232a;
     --ink: #f4f2ee; --ink-2: #b8b4ac; --muted: #86827a; --hairline: #2f2d36;
     --accent: #8b93f0; --accent-wash: rgba(139,147,240,0.13);
-    --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16);
+    --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16); --crit-wash: rgba(208,59,59,0.18);
   }
 }
 :root[data-theme="dark"] {
@@ -37,14 +38,14 @@
   --plane: #131217; --surface: #1c1b21; --surface-2: #24232a;
   --ink: #f4f2ee; --ink-2: #b8b4ac; --muted: #86827a; --hairline: #2f2d36;
   --accent: #8b93f0; --accent-wash: rgba(139,147,240,0.13);
-  --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16);
+  --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16); --crit-wash: rgba(208,59,59,0.18);
 }
 :root[data-theme="light"] {
   color-scheme: light;
   --plane: #eceae5; --surface: #faf9f6; --surface-2: #f2f0ec;
   --ink: #1a1917; --ink-2: #55534d; --muted: #8a877f; --hairline: #dcd9d2;
   --accent: #2f3aa8; --accent-wash: rgba(47,58,168,0.08);
-  --good-wash: rgba(12,163,12,0.11); --warn-wash: rgba(250,178,25,0.18);
+  --good-wash: rgba(12,163,12,0.11); --warn-wash: rgba(250,178,25,0.18); --crit-wash: rgba(208,59,59,0.11);
 }
 * { box-sizing: border-box; }
 body {
@@ -64,23 +65,42 @@ body {
 }
 .tbtn:hover { color: var(--accent); border-color: var(--accent); }
 
-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem clamp(1rem, 4vw, 2.25rem); }
+main { flex: 1; display: flex; justify-content: center; padding: clamp(1.2rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2.25rem); }
+.col { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 1rem; }
 .card {
-  width: 100%; max-width: 440px; background: var(--surface);
-  border: 1px solid var(--hairline); border-radius: 10px; padding: clamp(1.4rem, 5vw, 2rem);
+  background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px;
+  padding: clamp(1.3rem, 5vw, 1.7rem);
 }
 .k { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 0.6rem; }
-h1 { font-family: var(--serif); font-size: 1.4rem; margin: 0 0 0.3rem; line-height: 1.25; }
-.file { font-family: var(--mono); font-size: 0.85rem; color: var(--ink-2); word-break: break-all; margin: 0 0 1.3rem; }
+h1 { font-family: var(--serif); font-size: 1.35rem; margin: 0 0 0.3rem; line-height: 1.25; }
+.file { font-family: var(--mono); font-size: 0.85rem; color: var(--ink-2); word-break: break-all; margin: 0 0 1.2rem; }
 
-.rows { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.4rem; }
+.rows { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.3rem; }
 .row { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.9rem; padding: 0.55rem 0.7rem; background: var(--surface-2); border-radius: 6px; }
 .row span:first-child { color: var(--ink-2); }
 .row span:last-child { font-family: var(--mono); font-weight: 700; }
 
-.pricebox { text-align: center; padding: 1.3rem 0; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); margin-bottom: 1.4rem; }
-.price { font-family: var(--serif); font-weight: 700; font-size: 2.4rem; color: var(--ink); line-height: 1; }
-.price__note { font-size: 0.82rem; color: var(--muted); margin-top: 0.4rem; }
+.pricebox { text-align: center; padding: 1.1rem 0; border-top: 1px solid var(--hairline); }
+.price { font-family: var(--serif); font-weight: 700; font-size: 2.2rem; color: var(--ink); line-height: 1; }
+.price__note { font-size: 0.82rem; color: var(--muted); margin-top: 0.35rem; }
+
+/* --- шаг проверки: что гарантируем, что нет --- */
+.guarantee { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.1rem; }
+.gitem { display: flex; gap: 0.6rem; padding: 0.7rem 0.8rem; border-radius: 6px; font-size: 0.86rem; line-height: 1.45; }
+.gitem--yes { background: var(--good-wash); }
+.gitem--no  { background: var(--warn-wash); }
+.gitem i { flex: none; font-style: normal; font-weight: 700; }
+.gitem--yes i { color: var(--good); }
+.gitem--no i { color: #a86a00; }
+.gitem b { display: block; margin-bottom: 0.1rem; color: var(--ink); }
+.gitem span { color: var(--ink-2); }
+
+.gate {
+  display: flex; gap: 0.6rem; align-items: flex-start; padding: 0.8rem;
+  background: var(--surface-2); border-radius: 6px; margin-bottom: 1rem; font-size: 0.86rem;
+}
+.gate input { margin-top: 0.2rem; flex: none; width: 17px; height: 17px; accent-color: var(--accent); }
+.gate label { color: var(--ink-2); }
 
 .btn {
   font: inherit; font-weight: 600; font-size: 0.95rem; cursor: pointer; width: 100%;
@@ -88,7 +108,28 @@ h1 { font-family: var(--serif); font-size: 1.4rem; margin: 0 0 0.3rem; line-heig
   border-radius: 6px; padding: 0.7rem 1rem;
 }
 .btn:hover { filter: brightness(1.08); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+.btn:disabled { opacity: 0.42; cursor: not-allowed; filter: none; }
+.btn--ghost { background: none; color: var(--accent); }
+.btn--ghost:hover { background: var(--accent-wash); filter: none; }
+
+/* --- способы оплаты --- */
+.pay { display: none; }
+.pay.on { display: block; }
+.methods { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem; }
+.method {
+  font: inherit; cursor: pointer; text-align: left; position: relative;
+  background: var(--surface-2); border: 1px solid var(--hairline); border-radius: 8px;
+  padding: 0.75rem 0.8rem 0.7rem;
+}
+.method:hover { border-color: var(--accent); }
+.method__nm { font-weight: 700; font-size: 0.92rem; display: block; margin-bottom: 0.2rem; }
+.method__s { font-size: 0.76rem; color: var(--muted); display: block; }
+.method__soon {
+  position: absolute; top: 0.5rem; right: 0.5rem; font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-2);
+  background: var(--warn-wash); border-radius: 3px; padding: 0.12rem 0.35rem;
+}
+.why { font-size: 0.82rem; color: var(--muted); line-height: 1.5; margin: 0; }
 
 .msg {
   margin-top: 0.9rem; padding: 0.75rem 0.85rem; border-radius: 6px;
@@ -96,7 +137,25 @@ h1 { font-family: var(--serif); font-size: 1.4rem; margin: 0 0 0.3rem; line-heig
 }
 .msg.on { display: block; }
 
-.back { display: block; text-align: center; margin-top: 1.1rem; font-size: 0.85rem; color: var(--muted); text-decoration: none; }
+/* --- запомнить на этом устройстве (не аккаунт) --- */
+.remember { display: none; }
+.remember.on { display: block; }
+.remember .k { color: var(--ink-2); }
+.remember p { font-size: 0.84rem; color: var(--ink-2); margin: 0 0 0.8rem; line-height: 1.5; }
+.rfield {
+  width: 100%; font: inherit; padding: 0.6rem 0.7rem; border-radius: 6px;
+  border: 1px solid var(--hairline); background: var(--surface); color: var(--ink); margin-bottom: 0.7rem;
+}
+.rfield:focus { border-color: var(--accent); }
+.rrow { display: flex; gap: 0.6rem; }
+.rrow .btn { flex: 1; }
+.saved {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.6rem;
+  font-size: 0.86rem; background: var(--good-wash); border-radius: 6px; padding: 0.6rem 0.75rem;
+}
+.saved button { font: inherit; font-size: 0.78rem; background: none; border: none; color: var(--accent); cursor: pointer; padding: 0; }
+
+.back { display: block; text-align: center; margin-top: 0.2rem; font-size: 0.85rem; color: var(--muted); text-decoration: none; }
 .back:hover { color: var(--accent); }
 </style>
 </head>
@@ -108,20 +167,65 @@ h1 { font-family: var(--serif); font-size: 1.4rem; margin: 0 0 0.3rem; line-heig
 </header>
 
 <main>
-  <div class="card">
-    <p class="k">Исправление</p>
-    <h1 id="profileTitle">Файл</h1>
-    <p class="file" id="fileName">—</p>
+  <div class="col">
 
-    <div class="rows" id="rows"></div>
-
-    <div class="pricebox">
-      <div class="price">—</div>
-      <p class="price__note">Цена ещё не установлена</p>
+    <div class="card">
+      <p class="k">Заказ</p>
+      <h1 id="profileTitle">Файл</h1>
+      <p class="file" id="fileName">—</p>
+      <div class="rows" id="rows"></div>
+      <div class="pricebox">
+        <div class="price">—</div>
+        <p class="price__note">Цена ещё не установлена</p>
+      </div>
     </div>
 
-    <button class="btn" id="payBtn" type="button">Оплатить</button>
-    <p class="msg" id="msg">Это демонстрационная страница — оплата пока не подключена. Здесь появится реальная форма, когда определимся с ценой.</p>
+    <div class="card">
+      <p class="k">Проверьте перед оплатой</p>
+      <div class="guarantee">
+        <div class="gitem gitem--yes"><i aria-hidden="true">✓</i><div><b>Гарантируем</b><span>После обработки эти замечания будут измеряться в пределах нормы — это проверяется автоматически, до того как вернуть вам файл.</span></div></div>
+        <div class="gitem gitem--no"><i aria-hidden="true">!</i><div><b>Не гарантируем</b><span>Что площадку примет книгу целиком. Решение о приёмке не за нами — есть причины отказа, которые мы не проверяем (качество чтения, текст, метаданные) и не можем починить программно (сильная реверберация помещения).</span></div></div>
+      </div>
+      <div class="gate">
+        <input type="checkbox" id="ack">
+        <label for="ack">Понимаю: оплата — за исправление измеренных параметров, не за гарантию приёмки площадкой.</label>
+      </div>
+      <button class="btn" id="continueBtn" type="button" disabled>Перейти к оплате</button>
+    </div>
+
+    <div class="card pay" id="payCard">
+      <p class="k">Способ оплаты</p>
+      <div class="methods">
+        <button class="method" type="button" data-method="sbp">
+          <span class="method__soon">скоро</span>
+          <span class="method__nm">СБП</span>
+          <span class="method__s">по номеру телефона</span>
+        </button>
+        <button class="method" type="button" data-method="card">
+          <span class="method__soon">скоро</span>
+          <span class="method__nm">Карта</span>
+          <span class="method__s">Мир, Visa, Mastercard</span>
+        </button>
+      </div>
+      <p class="why">Оба способа появятся, как только оформим приём платежей официально — для этого нужна регистрация самозанятости и подключение платёжного провайдера, а это не техническая часть, её нельзя просто «включить» в коде.</p>
+      <p class="msg" id="msg">Это демонстрационная страница — оплата пока не подключена. Ничего не списано. Здесь появится реальная форма после того, как определимся с ценой и подключим приём платежей.</p>
+    </div>
+
+    <div class="card remember" id="rememberCard">
+      <p class="k">На будущее</p>
+      <div id="rememberForm">
+        <p>Запомнить e-mail на этом устройстве, чтобы не вводить его в следующий раз? Это сохранится только в этом браузере — полноценные аккаунты с историей на всех устройствах появятся позже, когда будет куда её сохранять.</p>
+        <input class="rfield" type="email" id="rememberEmail" placeholder="почта@пример.рф" autocomplete="email">
+        <div class="rrow">
+          <button class="btn" id="rememberSave" type="button">Сохранить</button>
+          <button class="btn btn--ghost" id="rememberSkip" type="button">Пропустить</button>
+        </div>
+      </div>
+      <div class="saved" id="rememberSaved" style="display:none">
+        <span>Сохранено на этом устройстве: <b id="rememberSavedEmail"></b></span>
+        <button type="button" id="rememberChange">изменить</button>
+      </div>
+    </div>
 
     <a class="back" href="index.html">← вернуться к проверке</a>
   </div>
@@ -152,8 +256,56 @@ h1 { font-family: var(--serif); font-size: 1.4rem; margin: 0 0 0.3rem; line-heig
   if (guided > 0) addRow("С вашей правкой по инструкции", guided + (guided === 1 ? " пункт" : " пункта"));
   if (!fixable && !guided) addRow("Замечаний", "нет данных — открыто без контекста файла");
 
-  document.getElementById("payBtn").addEventListener("click", function () {
-    document.getElementById("msg").classList.add("on");
+  /* check-in: кнопка «к оплате» разблокируется только после галочки */
+  var ack = document.getElementById("ack");
+  var continueBtn = document.getElementById("continueBtn");
+  var payCard = document.getElementById("payCard");
+  ack.addEventListener("change", function () { continueBtn.disabled = !ack.checked; });
+  continueBtn.addEventListener("click", function () {
+    payCard.classList.add("on");
+    payCard.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* способы оплаты — честная заглушка */
+  var msg = document.getElementById("msg");
+  var rememberCard = document.getElementById("rememberCard");
+  Array.prototype.forEach.call(document.querySelectorAll(".method"), function (btn) {
+    btn.addEventListener("click", function () {
+      msg.classList.add("on");
+      rememberCard.classList.add("on");
+      rememberCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  });
+
+  /* «запомнить на этом устройстве» — только localStorage, не аккаунт */
+  var STORE_KEY = "priemka_email";
+  var savedEmail = null;
+  try { savedEmail = localStorage.getItem(STORE_KEY); } catch (e) { /* приватный режим браузера — просто не предлагаем сохранить */ }
+
+  var formBox = document.getElementById("rememberForm");
+  var savedBox = document.getElementById("rememberSaved");
+  var savedEmailSpan = document.getElementById("rememberSavedEmail");
+
+  function showSaved(email) {
+    formBox.style.display = "none";
+    savedBox.style.display = "flex";
+    savedEmailSpan.textContent = email;
+  }
+  if (savedEmail) showSaved(savedEmail);
+
+  document.getElementById("rememberSave").addEventListener("click", function () {
+    var val = document.getElementById("rememberEmail").value.trim();
+    if (!val) return;
+    try { localStorage.setItem(STORE_KEY, val); } catch (e) { /* приватный режим — тихо игнорируем */ }
+    showSaved(val);
+  });
+  document.getElementById("rememberSkip").addEventListener("click", function () {
+    rememberCard.classList.remove("on");
+  });
+  document.getElementById("rememberChange").addEventListener("click", function () {
+    formBox.style.display = "block";
+    savedBox.style.display = "none";
+    document.getElementById("rememberEmail").value = savedEmail || "";
   });
 
   document.getElementById("theme").addEventListener("click", function () {
