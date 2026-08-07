@@ -140,9 +140,11 @@ body {
   letter-spacing: -0.01em; color: var(--ink);
 }
 .brand__t { font-size: 0.82rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* используется и как <button>, и как <a> — отсюда text-decoration и nowrap */
 .tbtn {
   font: inherit; font-size: 0.78rem; background: none; color: var(--ink-2);
   border: 1px solid var(--hairline); border-radius: 4px; padding: 0.35rem 0.6rem; cursor: pointer;
+  text-decoration: none; white-space: nowrap;
 }
 .tbtn:hover { color: var(--accent); border-color: var(--accent); }
 
@@ -420,6 +422,7 @@ body {
         <span id="modeChipLabel">Аудиокниги</span><i aria-hidden="true">▾</i>
       </button>
     </div>
+    <a class="tbtn" href="about.html">Про сервис</a>
     <button class="tbtn" id="theme" type="button">Тема</button>
   </div>
 </header>

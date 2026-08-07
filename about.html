@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Про сервис — Приёмка: проверка озвучки перед сдачей</title>
+<meta name="description" content="Зачем нужна Приёмка, что именно проверяется, откуда взяты пороги и чего сервис не умеет. Шесть из десяти записей уходят на перезапись из-за шума — это видно за минуту.">
+<link rel="canonical" href="https://napoykin01.github.io/priemka/about.html">
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:url" content="https://napoykin01.github.io/priemka/about.html">
+<meta property="og:site_name" content="Приёмка">
+<meta property="og:title" content="Про сервис — Приёмка">
+<meta property="og:description" content="Шесть из десяти записей уходят на перезапись из-за фонового шума. Приёмка показывает это за минуту — до отправки, а не после отказа.">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Файлы загружаются на сервер?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Нет. Весь разбор идёт в вашем браузере, файл не покидает устройство и никуда не отправляется. Это важно, потому что чтецы работают с неопубликованными книгами."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Откуда взяты пороги проверок?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Базовые числа — из опубликованной спецификации ACX (приёмка аудиокниг Audible и Amazon). Битрейт 128 кбит/с — из официального FAQ Литрес Чтеца. Поправки по шуму, реверберации и посторонним тонам — из отзывов чтецов в официальном чате Литреса."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Сервис гарантирует, что запись примут?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Нет. Проверяются измеримые технические параметры. Отказать могут за то, что измерить нельзя: качество чтения, интонации, соответствие текста. Приёмка убирает техническую причину отказа, а не решение площадки."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Сколько стоит?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Проверка бесплатна и останется бесплатной. Платной планируется отдельная функция автоматического исправления, её пока не существует."
+      }
+    }
+  ]
+}
+</script>
+<style>
+/* Токены — те же, что в index.html и oplata.html: один продукт, одна система.
+   Хроматика почти отсутствует, весь цвет отдан статусам. */
+:root {
+  color-scheme: light;
+  --plane:     #eceae5;
+  --surface:   #faf9f6;
+  --surface-2: #f2f0ec;
+  --ink:       #1a1917;
+  --ink-2:     #55534d;
+  --muted:     #8a877f;
+  --hairline:  #dcd9d2;
+  --accent:    #2f3aa8;
+  --accent-wash: rgba(47,58,168,0.08);
+  --good:      #0ca30c;
+  --good-wash: rgba(12,163,12,0.11);
+  --warning:   #fab219;
+  --warn-wash: rgba(250,178,25,0.18);
+  --critical:  #d03b3b;
+  --crit-wash: rgba(208,59,59,0.11);
+
+  --serif: "Bookman Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans:  "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono:  Consolas, "Cascadia Mono", ui-monospace, "SF Mono", monospace;
+  --pad: clamp(1rem, 4vw, 2.25rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --plane: #131217; --surface: #1c1b21; --surface-2: #24232a;
+    --ink: #f4f2ee; --ink-2: #b8b4ac; --muted: #86827a; --hairline: #2f2d36;
+    --accent: #8b93f0; --accent-wash: rgba(139,147,240,0.13);
+    --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16); --crit-wash: rgba(208,59,59,0.18);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane: #131217; --surface: #1c1b21; --surface-2: #24232a;
+  --ink: #f4f2ee; --ink-2: #b8b4ac; --muted: #86827a; --hairline: #2f2d36;
+  --accent: #8b93f0; --accent-wash: rgba(139,147,240,0.13);
+  --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16); --crit-wash: rgba(208,59,59,0.18);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --plane: #eceae5; --surface: #faf9f6; --surface-2: #f2f0ec;
+  --ink: #1a1917; --ink-2: #55534d; --muted: #8a877f; --hairline: #dcd9d2;
+  --accent: #2f3aa8; --accent-wash: rgba(47,58,168,0.08);
+  --good-wash: rgba(12,163,12,0.11); --warn-wash: rgba(250,178,25,0.18); --crit-wash: rgba(208,59,59,0.11);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--plane); color: var(--ink);
+  font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 var(--pad); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* ---------- шапка ---------- */
+.top {
+  border-bottom: 1px solid var(--hairline); background: var(--surface);
+  position: sticky; top: 0; z-index: 20;
+}
+.top__in { display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 0; }
+.brand {
+  font-family: var(--serif); font-size: 1.42rem; font-weight: 700;
+  color: var(--ink); text-decoration: none; margin-right: auto;
+}
+.tbtn {
+  font: inherit; font-size: 0.78rem; background: none; color: var(--ink-2);
+  border: 1px solid var(--hairline); border-radius: 4px; padding: 0.35rem 0.6rem;
+  cursor: pointer; text-decoration: none; white-space: nowrap;
+}
+.tbtn:hover { color: var(--accent); border-color: var(--accent); }
+.tbtn--cta { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.tbtn--cta:hover { color: #fff; filter: brightness(1.08); }
+
+/* ---------- герой ---------- */
+.hero { padding: clamp(2.4rem, 7vw, 4.2rem) 0 clamp(1.6rem, 4vw, 2.4rem); }
+.hero h1 {
+  font-family: var(--serif); font-weight: 400; margin: 0 0 0.7rem;
+  font-size: clamp(1.75rem, 1rem + 3.4vw, 3rem); line-height: 1.1;
+  letter-spacing: -0.02em; text-wrap: balance; max-width: 24ch;
+}
+.hero h1 b { font-weight: 700; }
+.hero__lead { font-size: clamp(1rem, 0.95rem + 0.3vw, 1.12rem); color: var(--ink-2); max-width: 58ch; margin: 0 0 1.5rem; }
+.cta {
+  display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 600;
+  background: var(--accent); color: #fff; border: 1px solid var(--accent);
+  border-radius: 6px; padding: 0.7rem 1.25rem; text-decoration: none; font-size: 1rem;
+}
+.cta:hover { filter: brightness(1.08); }
+.cta__note { font-size: 0.84rem; color: var(--muted); margin: 0.7rem 0 0; }
+
+/* ---------- секции ---------- */
+.sec { padding: clamp(2.2rem, 6vw, 3.4rem) 0 0; }
+.sec > h2 {
+  font-family: var(--serif); font-weight: 700; margin: 0 0 0.35rem;
+  font-size: clamp(1.3rem, 1.05rem + 1.1vw, 1.75rem); letter-spacing: -0.01em;
+}
+.sec__sub { color: var(--muted); margin: 0 0 1.4rem; max-width: 60ch; font-size: 0.94rem; }
+.sec p { color: var(--ink-2); max-width: 64ch; }
+
+/* большая цифра-факт */
+.factbox {
+  display: flex; flex-wrap: wrap; align-items: center; gap: clamp(1rem, 4vw, 2.4rem);
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: 10px; padding: clamp(1.3rem, 4vw, 1.9rem);
+}
+.fact__n {
+  font-family: var(--serif); font-weight: 700; line-height: 0.92;
+  font-size: clamp(3rem, 2rem + 6vw, 5rem); color: var(--accent);
+  font-variant-numeric: tabular-nums; flex: none;
+}
+.fact__t { flex: 1 1 18ch; min-width: 0; }
+.fact__t b { display: block; font-size: 1.02rem; margin-bottom: 0.3rem; }
+.fact__t span { color: var(--ink-2); font-size: 0.92rem; }
+.fact__src { display: block; margin-top: 0.5rem; font-size: 0.8rem; color: var(--muted); }
+
+/* карточки режимов */
+.modes { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+.mode {
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: 10px; padding: 1.15rem 1.2rem;
+}
+.mode h3 { margin: 0 0 0.1rem; font-size: 1.05rem; display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+.mode__for { font-size: 0.82rem; color: var(--muted); margin: 0 0 0.85rem; }
+.mode ul { margin: 0; padding-left: 1.1rem; font-size: 0.88rem; color: var(--ink-2); }
+.mode li { margin-bottom: 0.28rem; }
+.mode li:last-child { margin-bottom: 0; }
+.beta {
+  font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--warn-wash); color: var(--ink); border-radius: 3px; padding: 0.14rem 0.4rem;
+}
+
+/* шаги */
+.steps { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); counter-reset: s; }
+.step {
+  background: var(--surface); border: 1px solid var(--hairline);
+  border-radius: 10px; padding: 1.1rem 1.15rem; counter-increment: s; position: relative;
+}
+.step::before {
+  content: counter(s);
+  font-family: var(--serif); font-weight: 700; font-size: 1.5rem; color: var(--accent);
+  display: block; line-height: 1; margin-bottom: 0.5rem;
+}
+.step b { display: block; margin-bottom: 0.25rem; font-size: 0.98rem; }
+.step span { font-size: 0.87rem; color: var(--ink-2); }
+
+/* два столбца: умеет / не умеет */
+.cols { display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+.col {
+  border-radius: 10px; padding: 1.15rem 1.25rem; border: 1px solid var(--hairline);
+  background: var(--surface);
+}
+.col h3 { margin: 0 0 0.75rem; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.col h3 i { font-style: normal; font-weight: 700; }
+.col--yes h3 i { color: var(--good); }
+.col--no h3 i { color: var(--warning); }
+.col ul { margin: 0; padding-left: 1.15rem; font-size: 0.89rem; color: var(--ink-2); }
+.col li { margin-bottom: 0.4rem; }
+.col li:last-child { margin-bottom: 0; }
+
+/* таблица источников */
+.scroller { overflow-x: auto; }
+.src {
+  width: 100%; border-collapse: collapse; font-size: 0.87rem;
+  background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; overflow: hidden;
+}
+.src th, .src td { text-align: left; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+.src thead th { font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.src tbody tr:last-child th, .src tbody tr:last-child td { border-bottom: 0; }
+.src th[scope="row"] { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.trust { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.74rem; font-weight: 600; padding: 0.15rem 0.42rem; border-radius: 3px; white-space: nowrap; }
+.trust i { font-style: normal; }
+.trust--pub  { background: var(--good-wash); color: var(--ink); }
+.trust--pub i { color: var(--good); }
+.trust--part { background: var(--warn-wash); color: var(--ink); }
+.trust--part i { color: var(--warning); }
+
+/* приватность — выделенный блок */
+.privacy {
+  background: var(--accent-wash); border: 1px solid var(--hairline);
+  border-radius: 10px; padding: clamp(1.2rem, 4vw, 1.7rem);
+}
+.privacy h2 { font-family: var(--serif); font-size: 1.3rem; margin: 0 0 0.5rem; }
+.privacy p { margin: 0 0 0.7rem; color: var(--ink-2); max-width: 62ch; }
+.privacy p:last-child { margin-bottom: 0; }
+
+/* что дальше */
+.soon { background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; padding: clamp(1.2rem, 4vw, 1.7rem); }
+.soon__k { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 0.5rem; }
+.soon h2 { font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; }
+
+/* финальный призыв */
+.final { text-align: center; padding: clamp(2.6rem, 7vw, 4rem) 0 0; }
+.final h2 { font-family: var(--serif); font-size: clamp(1.4rem, 1.1rem + 1.4vw, 2rem); margin: 0 0 0.5rem; }
+.final p { color: var(--ink-2); margin: 0 auto 1.4rem; max-width: 46ch; }
+
+.foot { margin-top: clamp(2.4rem, 6vw, 3.6rem); border-top: 1px solid var(--hairline); padding: 1.4rem 0 2.8rem; }
+.foot p { font-size: 0.8rem; color: var(--muted); max-width: 68ch; margin: 0 0 0.55rem; }
+.foot a { color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) { * { transition-duration: 1ms !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top__in">
+    <a class="brand" href="index.html">Приёмка</a>
+    <a class="tbtn tbtn--cta" href="index.html">Проверить запись</a>
+    <button class="tbtn" id="theme" type="button">Тема</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <h1>Технические причины отказа видно <b>до отправки</b></h1>
+    <p class="hero__lead">Приёмка измеряет запись и говорит, что именно не пройдёт приёмку площадки, насколько и что с этим делать. Бесплатно, без регистрации, прямо в браузере — файл никуда не загружается.</p>
+    <a class="cta" href="index.html">Проверить запись <span aria-hidden="true">→</span></a>
+    <p class="cta__note">Или сначала посмотрите на готовом примере — кнопка есть на странице проверки.</p>
+  </section>
+
+  <section class="sec">
+    <h2>Зачем это нужно</h2>
+    <p class="sec__sub">Самая обидная причина отказа — та, которую можно было услышать за минуту.</p>
+    <div class="factbox">
+      <div class="fact__n">30<span style="font-size:0.45em; color:var(--ink-2)">&nbsp;из&nbsp;50</span></div>
+      <div class="fact__t">
+        <b>заявок в день уходят на перезапись</b>
+        <span>И в основном — из-за фонового шума: кулера компьютера, вентиляции, холодильника за стеной. Это не про талант чтения, это про технику записи.</span>
+        <span class="fact__src">По данным блога издательских сервисов Литрес</span>
+      </div>
+    </div>
+    <p style="margin-top:1.2rem">Проблема в том, что узнаёте вы об этом уже после отказа — потеряв дни ожидания и получив расплывчатое «низкое качество записи». А цифры, по которым вас на самом деле проверяют, публикуются скупо: у Литреса в требованиях сказано «без шумов и эха, ровная громкость», но не сказано, сколько это в децибелах.</p>
+  </section>
+
+  <section class="sec">
+    <h2>Что проверяется</h2>
+    <p class="sec__sub">Три набора требований на одном движке. Режим переключается в панели у названия сервиса.</p>
+    <div class="modes">
+      <div class="mode">
+        <h3>Аудиокниги</h3>
+        <p class="mode__for">Литрес Чтец, Строки, Яндекс Книги</p>
+        <ul>
+          <li>шумовой пол — главная причина отказов</li>
+          <li>реверберация помещения (эхо в комнате)</li>
+          <li>посторонние тоны — гул сети, гудения</li>
+          <li>громкость, пики, клиппинг</li>
+          <li>тишина в начале и конце главы</li>
+          <li>формат: частота, разрядность, битрейт</li>
+          <li>согласованность громкости между главами</li>
+        </ul>
+      </div>
+      <div class="mode">
+        <h3>Подкасты</h3>
+        <p class="mode__for">Apple Podcasts, Spotify, Яндекс Музыка</p>
+        <ul>
+          <li>интегральная громкость по LUFS</li>
+          <li>межотсчётный пик (true peak)</li>
+          <li>клиппинг и постоянная составляющая</li>
+          <li>разброс громкости между выпусками</li>
+        </ul>
+      </div>
+      <div class="mode">
+        <h3>Треки <span class="beta">бета</span></h3>
+        <p class="mode__for">Spotify, Apple Music, VK Музыка</p>
+        <ul>
+          <li>громкость мастера относительно −14 LUFS</li>
+          <li>межотсчётный пик</li>
+          <li>клиппинг и постоянная составляющая</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Как это работает</h2>
+    <div class="steps">
+      <div class="step">
+        <b>Кидаете файлы</b>
+        <span>Одну главу или сразу все — WAV, MP3, FLAC, M4A. Регистрация не нужна.</span>
+      </div>
+      <div class="step">
+        <b>Считается у вас на устройстве</b>
+        <span>Браузер разбирает звук локально. Ничего не выгружается и не ждёт очереди на сервере.</span>
+      </div>
+      <div class="step">
+        <b>Получаете заключение</b>
+        <span>По каждому файлу: что не проходит, на сколько именно и что с этим делать. Можно скопировать текстом.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="privacy">
+      <h2>Почему файлы никуда не отправляются</h2>
+      <p>Чтецы работают с книгами, которые ещё не вышли. Загружать их на чей-то сервер — плохая идея, даже если сервер обещает быть аккуратным.</p>
+      <p>Поэтому Приёмка устроена иначе: разбор звука выполняет ваш браузер, файл остаётся на устройстве. Это заодно означает, что нет ожидания загрузки для трёхсотмегабайтной главы и нет платы за обработку — отсюда и бесплатная проверка, а не «бесплатно первые 5 минут».</p>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Откуда взяты цифры</h2>
+    <p class="sec__sub">Сервис показывает свои источники и честно помечает, где стандарт опубликован, а где — практика.</p>
+    <div class="scroller">
+      <table class="src">
+        <thead>
+          <tr><th scope="col">Источник</th><th scope="col">Что берётся</th><th scope="col">Надёжность</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">ACX (Audible, Amazon)</th>
+            <td>Базовые пороги: громкость, пики, шумовой пол, тишина по краям. Самый строгий и подробно опубликованный стандарт в отрасли.</td>
+            <td><span class="trust trust--pub"><i aria-hidden="true">✓</i>опубликовано</span></td>
+          </tr>
+          <tr>
+            <th scope="row">FAQ Литрес Чтеца</th>
+            <td>Битрейт 128 кбит/с, частота 44,1 кГц, 16 бит, формат MP3. Громкость и шум в цифрах площадка не публикует.</td>
+            <td><span class="trust trust--pub"><i aria-hidden="true">✓</i>опубликовано</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Apple Podcasts, Spotify</th>
+            <td>Ориентиры громкости для подкастов: −16 LUFS стерео, −19 моно, пик не выше −1 dBTP.</td>
+            <td><span class="trust trust--pub"><i aria-hidden="true">✓</i>опубликовано</span></td>
+          </tr>
+          <tr>
+            <th scope="row">Чат чтецов Литреса</th>
+            <td>Поправки к практике: официальный порог шума строже реального; реверберация и посторонние тоны названы главными причинами отказа после шума.</td>
+            <td><span class="trust trust--part"><i aria-hidden="true">~</i>практика</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Что умеет и чего не умеет</h2>
+    <p class="sec__sub">Сервис проверяет измеримое. Всё остальное — вне его возможностей, и лучше знать это заранее.</p>
+    <div class="cols">
+      <div class="col col--yes">
+        <h3><i aria-hidden="true">✓</i>Покажет</h3>
+        <ul>
+          <li>что шум выше нормы и на сколько децибел</li>
+          <li>что в комнате слышно эхо</li>
+          <li>что в паузах гудит электросеть</li>
+          <li>что громкость не в диапазоне</li>
+          <li>что пики срезаны и в каких местах</li>
+          <li>что главы звучат по-разному по громкости</li>
+          <li>что формат файла не тот, который просят</li>
+        </ul>
+      </div>
+      <div class="col col--no">
+        <h3><i aria-hidden="true">!</i>Не покажет</h3>
+        <ul>
+          <li>соответствие записи тексту книги — пропущенные абзацы, перепутанные имена</li>
+          <li>качество самого чтения: интонации, темп, дикцию</li>
+          <li>метаданные и обложку</li>
+          <li>настоящую частоту и разрядность сжатого файла — для этого нужен исходный WAV</li>
+          <li>примут ли вашу запись: решение за площадкой, а не за измерениями</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="soon">
+      <p class="soon__k">в разработке</p>
+      <h2>Автоматическое исправление</h2>
+      <p>Сейчас сервис ставит диагноз. Следующий шаг — чтобы он умел сам поправить то, что поправимо математикой: привести громкость и пики к нужным значениям, убрать постоянную составляющую, вырезать узкий гул сети, подрезать паузы по краям.</p>
+      <p style="margin-bottom:0">Отдельно стоит сказать, чего эта функция делать не будет: реверберацию помещения и сильный шум программно не убрать без потери качества голоса — там честнее перезаписать в более заглушённой комнате, и сервис так и скажет, вместо того чтобы делать вид, что справился. Диагностика останется бесплатной в любом случае.</p>
+    </div>
+  </section>
+
+  <section class="final">
+    <h2>Проверить занимает минуту</h2>
+    <p>Не нужно регистрироваться, платить и никуда загружать файл.</p>
+    <a class="cta" href="index.html">Проверить запись <span aria-hidden="true">→</span></a>
+  </section>
+
+  <div class="foot">
+    <p>Инструмент сделан одним человеком, исходный код открыт и лежит на <a href="https://github.com/napoykin01/priemka">GitHub</a> — можно посмотреть, по каким именно правилам считается каждая проверка.</p>
+    <p>Реверберация и уровень гула оцениваются по естественной речи, а не измеряются контрольным сигналом, как это делают в акустике, — это оценки, и в интерфейсе они помечены как оценки. Пороги для российских площадок собраны из официальных требований и практики сообщества; они могут измениться или отличаться для конкретного проекта.</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  document.getElementById("theme").addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var dark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  });
+})();
+</script>
+</body>
+</html>
