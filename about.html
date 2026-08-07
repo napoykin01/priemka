@@ -29,14 +29,6 @@
     },
     {
       "@type": "Question",
-      "name": "Откуда взяты пороги проверок?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Базовые числа — из опубликованной спецификации ACX (приёмка аудиокниг Audible и Amazon). Битрейт 128 кбит/с — из официального FAQ Литрес Чтеца. Поправки по шуму, реверберации и посторонним тонам — из отзывов чтецов в официальном чате Литреса."
-      }
-    },
-    {
-      "@type": "Question",
       "name": "Сервис гарантирует, что запись примут?",
       "acceptedAnswer": {
         "@type": "Answer",
@@ -219,23 +211,6 @@ body {
 .col li { margin-bottom: 0.4rem; }
 .col li:last-child { margin-bottom: 0; }
 
-/* таблица источников */
-.scroller { overflow-x: auto; }
-.src {
-  width: 100%; border-collapse: collapse; font-size: 0.87rem;
-  background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; overflow: hidden;
-}
-.src th, .src td { text-align: left; padding: 0.7rem 0.9rem; border-bottom: 1px solid var(--hairline); vertical-align: top; }
-.src thead th { font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-.src tbody tr:last-child th, .src tbody tr:last-child td { border-bottom: 0; }
-.src th[scope="row"] { font-weight: 600; color: var(--ink); white-space: nowrap; }
-.trust { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.74rem; font-weight: 600; padding: 0.15rem 0.42rem; border-radius: 3px; white-space: nowrap; }
-.trust i { font-style: normal; }
-.trust--pub  { background: var(--good-wash); color: var(--ink); }
-.trust--pub i { color: var(--good); }
-.trust--part { background: var(--warn-wash); color: var(--ink); }
-.trust--part i { color: var(--warning); }
-
 /* приватность — выделенный блок */
 .privacy {
   background: var(--accent-wash); border: 1px solid var(--hairline);
@@ -357,40 +332,6 @@ body {
       <h2>Почему файлы никуда не отправляются</h2>
       <p>Чтецы работают с книгами, которые ещё не вышли. Загружать их на чей-то сервер — плохая идея, даже если сервер обещает быть аккуратным.</p>
       <p>Поэтому Приёмка устроена иначе: разбор звука выполняет ваш браузер, файл остаётся на устройстве. Это заодно означает, что нет ожидания загрузки для трёхсотмегабайтной главы и нет платы за обработку — отсюда и бесплатная проверка, а не «бесплатно первые 5 минут».</p>
-    </div>
-  </section>
-
-  <section class="sec">
-    <h2>Откуда взяты цифры</h2>
-    <p class="sec__sub">Сервис показывает свои источники и честно помечает, где стандарт опубликован, а где — практика.</p>
-    <div class="scroller">
-      <table class="src">
-        <thead>
-          <tr><th scope="col">Источник</th><th scope="col">Что берётся</th><th scope="col">Надёжность</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope="row">ACX (Audible, Amazon)</th>
-            <td>Базовые пороги: громкость, пики, шумовой пол, тишина по краям. Самый строгий и подробно опубликованный стандарт в отрасли.</td>
-            <td><span class="trust trust--pub"><i aria-hidden="true">✓</i>опубликовано</span></td>
-          </tr>
-          <tr>
-            <th scope="row">FAQ Литрес Чтеца</th>
-            <td>Битрейт 128 кбит/с, частота 44,1 кГц, 16 бит, формат MP3. Громкость и шум в цифрах площадка не публикует.</td>
-            <td><span class="trust trust--pub"><i aria-hidden="true">✓</i>опубликовано</span></td>
-          </tr>
-          <tr>
-            <th scope="row">Apple Podcasts, Spotify</th>
-            <td>Ориентиры громкости для подкастов: −16 LUFS стерео, −19 моно, пик не выше −1 dBTP.</td>
-            <td><span class="trust trust--pub"><i aria-hidden="true">✓</i>опубликовано</span></td>
-          </tr>
-          <tr>
-            <th scope="row">Чат чтецов Литреса</th>
-            <td>Поправки к практике: официальный порог шума строже реального; реверберация и посторонние тоны названы главными причинами отказа после шума.</td>
-            <td><span class="trust trust--part"><i aria-hidden="true">~</i>практика</span></td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </section>
 
