@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Гул электросети (50 Гц) в записи — откуда берётся и как убрать | Приёмка</title>
+<meta name="description" content="Гул на 50 Гц в паузах записи — частая причина отказа после шума и эха. Откуда берётся гул электросети, как найти источник и как его убрать в записи и в редакторе.">
+<link rel="canonical" href="https://napoykin01.github.io/priemka/gul-seti.html">
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:url" content="https://napoykin01.github.io/priemka/gul-seti.html">
+<meta property="og:site_name" content="Приёмка">
+<meta property="og:title" content="Гул электросети в записи: откуда и как убрать">
+<meta property="og:description" content="Тон на 50 Гц в паузах — частая причина отказа. Разбираем источники гула электросети и способы его убрать.">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Гул электросети (50 Гц) в записи: откуда берётся и как убрать",
+  "description": "Источники гула электросети в записи речи и способы его устранить при записи и в редакторе.",
+  "inLanguage": "ru"
+}
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --plane:     #eceae5;
+  --surface:   #faf9f6;
+  --surface-2: #f2f0ec;
+  --ink:       #1a1917;
+  --ink-2:     #55534d;
+  --muted:     #8a877f;
+  --hairline:  #dcd9d2;
+  --accent:    #2f3aa8;
+  --accent-wash: rgba(47,58,168,0.08);
+  --good:      #0ca30c;
+  --good-wash: rgba(12,163,12,0.11);
+  --warning:   #fab219;
+  --warn-wash: rgba(250,178,25,0.18);
+  --critical:  #d03b3b;
+  --crit-wash: rgba(208,59,59,0.11);
+
+  --serif: "Bookman Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans:  "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono:  Consolas, "Cascadia Mono", ui-monospace, "SF Mono", monospace;
+  --pad: clamp(1rem, 4vw, 2.25rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --plane: #131217; --surface: #1c1b21; --surface-2: #24232a;
+    --ink: #f4f2ee; --ink-2: #b8b4ac; --muted: #86827a; --hairline: #2f2d36;
+    --accent: #8b93f0; --accent-wash: rgba(139,147,240,0.13);
+    --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16); --crit-wash: rgba(208,59,59,0.18);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane: #131217; --surface: #1c1b21; --surface-2: #24232a;
+  --ink: #f4f2ee; --ink-2: #b8b4ac; --muted: #86827a; --hairline: #2f2d36;
+  --accent: #8b93f0; --accent-wash: rgba(139,147,240,0.13);
+  --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16); --crit-wash: rgba(208,59,59,0.18);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --plane: #eceae5; --surface: #faf9f6; --surface-2: #f2f0ec;
+  --ink: #1a1917; --ink-2: #55534d; --muted: #8a877f; --hairline: #dcd9d2;
+  --accent: #2f3aa8; --accent-wash: rgba(47,58,168,0.08);
+  --good-wash: rgba(12,163,12,0.11); --warn-wash: rgba(250,178,25,0.18); --crit-wash: rgba(208,59,59,0.11);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--plane); color: var(--ink);
+  font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 var(--pad); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+.top { border-bottom: 1px solid var(--hairline); background: var(--surface); position: sticky; top: 0; z-index: 20; }
+.top__in { display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 0; max-width: 720px; margin: 0 auto; padding-left: var(--pad); padding-right: var(--pad); }
+.brand { font-family: var(--serif); font-size: 1.42rem; font-weight: 700; color: var(--ink); text-decoration: none; margin-right: auto; }
+.tbtn { font: inherit; font-size: 0.78rem; background: none; color: var(--ink-2); border: 1px solid var(--hairline); border-radius: 4px; padding: 0.35rem 0.6rem; cursor: pointer; text-decoration: none; white-space: nowrap; }
+.tbtn:hover { color: var(--accent); border-color: var(--accent); }
+.tbtn--cta { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.tbtn--cta:hover { color: #fff; filter: brightness(1.08); }
+
+article.post { padding: clamp(2rem, 6vw, 3.2rem) 0 clamp(3rem, 7vw, 4rem); }
+.kicker { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 0.6rem; }
+h1 { font-family: var(--serif); font-weight: 400; margin: 0 0 0.8rem; font-size: clamp(1.7rem, 1rem + 3vw, 2.5rem); line-height: 1.15; letter-spacing: -0.02em; text-wrap: balance; }
+.lead { font-size: 1.05rem; color: var(--ink-2); max-width: 60ch; margin: 0 0 1.6rem; }
+h2 { font-family: var(--serif); font-weight: 700; margin: 2rem 0 0.6rem; font-size: 1.35rem; letter-spacing: -0.01em; }
+p { color: var(--ink-2); max-width: 66ch; }
+ul, ol { color: var(--ink-2); max-width: 62ch; padding-left: 1.2rem; }
+li { margin-bottom: 0.4rem; }
+strong { color: var(--ink); }
+
+.callout { background: var(--accent-wash); border: 1px solid var(--hairline); border-radius: 10px; padding: clamp(1.1rem, 4vw, 1.5rem); margin: 1.4rem 0; }
+.callout p:last-child { margin-bottom: 0; }
+.warn { background: var(--warn-wash); }
+
+.final { text-align: center; padding: clamp(2.2rem, 6vw, 3rem) 0 0; margin-top: 1rem; border-top: 1px solid var(--hairline); }
+.final h2 { margin-top: 0; }
+.cta { display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 600; background: var(--accent); color: #fff; border: 1px solid var(--accent); border-radius: 6px; padding: 0.7rem 1.25rem; text-decoration: none; font-size: 1rem; }
+.cta:hover { filter: brightness(1.08); }
+
+.related { padding: 1.4rem 0 2.4rem; border-top: 1px solid var(--hairline); margin-top: 2rem; }
+.related h3 { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.related ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.related a { display: inline-block; border: 1px solid var(--hairline); border-radius: 6px; padding: 0.5rem 0.8rem; color: var(--ink-2); text-decoration: none; font-size: 0.88rem; background: var(--surface); }
+.related a:hover { color: var(--accent); border-color: var(--accent); }
+
+.foot { border-top: 1px solid var(--hairline); padding: 1.4rem 0 2.8rem; }
+.foot p { font-size: 0.8rem; color: var(--muted); max-width: 68ch; margin: 0 0 0.55rem; }
+.foot a { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { * { transition-duration: 1ms !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <a class="brand" href="index.html">Приёмка</a>
+    <a class="tbtn tbtn--cta" href="index.html">Проверить запись</a>
+    <button class="tbtn" id="theme" type="button">Тема</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="post">
+    <p class="kicker">Гайд · аудиокниги</p>
+    <h1>Гул электросети: откуда берётся и как его убрать</h1>
+    <p class="lead">Тихий тон на 50 Гц (и кратных ему 100, 150 Гц), который слышен в паузах между фразами, — одна из главных причин отказа сразу после шума и эха. В отличие от общего шума, у него узкая и понятная причина, и часто её можно устранить прямо на записи.</p>
+
+    <h2>Что это и откуда берётся</h2>
+    <p>Частота тока в бытовой электросети в России — 50&nbsp;Гц. Любая техника и проводка вокруг микрофона может наводить этот тон на сигнал — обычно вместе с кратными частотами 100 и 150&nbsp;Гц. Типичные источники:</p>
+    <ul>
+      <li>ноутбук или телефон, подключённый к зарядке во время записи;</li>
+      <li>USB-микрофон или звуковая карта рядом с блоком питания, монитором или роутером;</li>
+      <li><strong>земляная петля (ground loop)</strong> — когда микрофон и компьютер питаются от разных розеток с небольшой разницей потенциалов;</li>
+      <li>диммеры света и некачественные светодиодные лампы рядом с рабочим местом;</li>
+      <li>дешёвые или повреждённые кабели и переходники.</li>
+    </ul>
+
+    <h2>Как найти источник</h2>
+    <p>Самый надёжный способ — метод исключения: включите запись на несколько секунд тишины и по одному отключайте подозреваемые источники (зарядку ноутбука, свет, другую технику рядом), слушая, пропал тон или нет.</p>
+    <div class="callout">
+      <p><strong>Быстрая проверка на слух.</strong> Запишите 5–10 секунд тишины, увеличьте громкость воспроизведения и прислушайтесь к низкому, ровному «дрону» — гудению без вибрато, в отличие от шума кулера или улицы. Если он есть — это почти наверняка сеть.</p>
+    </div>
+
+    <h2>Как убрать при записи — это надёжнее, чем в редакторе</h2>
+    <ul>
+      <li><strong>Переведите ноутбук на батарею</strong> на время записи, если он был на зарядке — самая частая причина гула на бытовых записях.</li>
+      <li><strong>Разнесите микрофон и технику.</strong> Отодвиньте интерфейс/микрофон от монитора, роутера, блока питания на 20–30 см.</li>
+      <li><strong>Проверьте розетку.</strong> Если микрофон и компьютер запитаны от разных розеток (особенно в разных комнатах или через удлинитель другого контура) — попробуйте одну розетку или один удлинитель для всей цепочки.</li>
+      <li><strong>Используйте балансный кабель (XLR)</strong>, если оборудование позволяет — балансное соединение устойчивее к наводкам, чем обычный джек или дешёвый USB-кабель.</li>
+    </ul>
+
+    <h2>Как убрать в редакторе, если источник не нашли</h2>
+    <p>В любом бесплатном редакторе (например, Audacity) есть узкополосный фильтр-вырез (notch filter). Ставится на 50&nbsp;Гц и кратные 100, 150&nbsp;Гц — вырезает именно эти частоты, оставляя остальной спектр голоса нетронутым.</p>
+    <div class="callout warn">
+      <p><strong>Не переусердствуйте с шириной вырезаемой полосы.</strong> Слишком широкий notch-фильтр на 50&nbsp;Гц заодно съедает низ голоса и делает его чуть тоньше — используйте самую узкую полосу, которая всё же убирает тон, и сверяйте на слух до и после.</p>
+    </div>
+
+    <h2>Как это проверяет Приёмка</h2>
+    <p>Сервис анализирует паузы между фразами резонаторами Гёрцеля — узкополосным методом, который дешевле полного FFT и точно настроен на 50, 100 и 150&nbsp;Гц. Если тон в паузе почти равен по уровню общей «тишине» — это не тишина, а гул, и проверка отмечает это отдельно от общего шумового пола.</p>
+
+    <div class="final">
+      <h2>Проверить свою запись на гул сети — минута</h2>
+      <p>Приёмка бесплатно ищет тон на 50/100/150 Гц в паузах вашей записи — прямо в браузере, без загрузки файла на сервер.</p>
+      <a class="cta" href="index.html">Проверить запись <span aria-hidden="true">→</span></a>
+    </div>
+  </article>
+
+  <nav class="related">
+    <h3>Другие частые причины отказа</h3>
+    <ul>
+      <li><a href="shum.html">Фоновый шум</a></li>
+      <li><a href="gulkost.html">Гулкость помещения</a></li>
+      <li><a href="gromkost.html">Громкость и пики</a></li>
+      <li><a href="about.html">Как работает Приёмка</a></li>
+    </ul>
+  </nav>
+
+  <div class="foot">
+    <p>Уровень гула сети оценивается по естественной речи между фразами, а не отдельным контрольным замером — в интерфейсе Приёмки это помечено как оценка. Исходный код открыт на <a href="https://github.com/napoykin01/priemka">GitHub</a>.</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  document.getElementById("theme").addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var dark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Фоновый шум в записи — причина №1 отказа при сдаче начитки | Приёмка</title>
+<meta name="description" content="Из 50 заявок в день в Литрес Чтец 30 уходят на перезапись из-за фонового шума. Что считается шумом, какой порог реально принимают и как убрать шум без потери качества голоса.">
+<link rel="canonical" href="https://napoykin01.github.io/priemka/shum.html">
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:url" content="https://napoykin01.github.io/priemka/shum.html">
+<meta property="og:site_name" content="Приёмка">
+<meta property="og:title" content="Фоновый шум в записи: как найти и убрать">
+<meta property="og:description" content="30 из 50 заявок в Литрес Чтец уходят на перезапись из-за фонового шума. Разбираем, что с ним делать до отправки, а не после отказа.">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Фоновый шум в записи: причина №1 отказа при сдаче начитки",
+  "description": "Что считается фоновым шумом, какой порог реально принимают площадки и как убрать шум без потери качества голоса.",
+  "inLanguage": "ru"
+}
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --plane:     #eceae5;
+  --surface:   #faf9f6;
+  --surface-2: #f2f0ec;
+  --ink:       #1a1917;
+  --ink-2:     #55534d;
+  --muted:     #8a877f;
+  --hairline:  #dcd9d2;
+  --accent:    #2f3aa8;
+  --accent-wash: rgba(47,58,168,0.08);
+  --good:      #0ca30c;
+  --good-wash: rgba(12,163,12,0.11);
+  --warning:   #fab219;
+  --warn-wash: rgba(250,178,25,0.18);
+  --critical:  #d03b3b;
+  --crit-wash: rgba(208,59,59,0.11);
+
+  --serif: "Bookman Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans:  "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono:  Consolas, "Cascadia Mono", ui-monospace, "SF Mono", monospace;
+  --pad: clamp(1rem, 4vw, 2.25rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --plane: #131217; --surface: #1c1b21; --surface-2: #24232a;
+    --ink: #f4f2ee; --ink-2: #b8b4ac; --muted: #86827a; --hairline: #2f2d36;
+    --accent: #8b93f0; --accent-wash: rgba(139,147,240,0.13);
+    --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16); --crit-wash: rgba(208,59,59,0.18);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane: #131217; --surface: #1c1b21; --surface-2: #24232a;
+  --ink: #f4f2ee; --ink-2: #b8b4ac; --muted: #86827a; --hairline: #2f2d36;
+  --accent: #8b93f0; --accent-wash: rgba(139,147,240,0.13);
+  --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16); --crit-wash: rgba(208,59,59,0.18);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --plane: #eceae5; --surface: #faf9f6; --surface-2: #f2f0ec;
+  --ink: #1a1917; --ink-2: #55534d; --muted: #8a877f; --hairline: #dcd9d2;
+  --accent: #2f3aa8; --accent-wash: rgba(47,58,168,0.08);
+  --good-wash: rgba(12,163,12,0.11); --warn-wash: rgba(250,178,25,0.18); --crit-wash: rgba(208,59,59,0.11);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--plane); color: var(--ink);
+  font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 var(--pad); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+.top { border-bottom: 1px solid var(--hairline); background: var(--surface); position: sticky; top: 0; z-index: 20; }
+.top__in { display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 0; max-width: 720px; margin: 0 auto; padding-left: var(--pad); padding-right: var(--pad); }
+.brand { font-family: var(--serif); font-size: 1.42rem; font-weight: 700; color: var(--ink); text-decoration: none; margin-right: auto; }
+.tbtn { font: inherit; font-size: 0.78rem; background: none; color: var(--ink-2); border: 1px solid var(--hairline); border-radius: 4px; padding: 0.35rem 0.6rem; cursor: pointer; text-decoration: none; white-space: nowrap; }
+.tbtn:hover { color: var(--accent); border-color: var(--accent); }
+.tbtn--cta { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.tbtn--cta:hover { color: #fff; filter: brightness(1.08); }
+
+article.post { padding: clamp(2rem, 6vw, 3.2rem) 0 clamp(3rem, 7vw, 4rem); }
+.kicker { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 0.6rem; }
+h1 { font-family: var(--serif); font-weight: 400; margin: 0 0 0.8rem; font-size: clamp(1.7rem, 1rem + 3vw, 2.5rem); line-height: 1.15; letter-spacing: -0.02em; text-wrap: balance; }
+.lead { font-size: 1.05rem; color: var(--ink-2); max-width: 60ch; margin: 0 0 1.6rem; }
+h2 { font-family: var(--serif); font-weight: 700; margin: 2rem 0 0.6rem; font-size: 1.35rem; letter-spacing: -0.01em; }
+p { color: var(--ink-2); max-width: 66ch; }
+ul, ol { color: var(--ink-2); max-width: 62ch; padding-left: 1.2rem; }
+li { margin-bottom: 0.4rem; }
+strong { color: var(--ink); }
+
+.factbox { display: flex; flex-wrap: wrap; align-items: center; gap: clamp(1rem, 4vw, 2rem); background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; padding: clamp(1.1rem, 4vw, 1.6rem); margin: 1.4rem 0; }
+.fact__n { font-family: var(--serif); font-weight: 700; line-height: 0.92; font-size: clamp(2.6rem, 2rem + 4vw, 3.6rem); color: var(--accent); font-variant-numeric: tabular-nums; flex: none; }
+.fact__t b { display: block; font-size: 0.98rem; margin-bottom: 0.25rem; color: var(--ink); }
+.fact__t span { color: var(--ink-2); font-size: 0.9rem; }
+.fact__src { display: block; margin-top: 0.4rem; font-size: 0.78rem; color: var(--muted); }
+
+.callout { background: var(--accent-wash); border: 1px solid var(--hairline); border-radius: 10px; padding: clamp(1.1rem, 4vw, 1.5rem); margin: 1.4rem 0; }
+.callout p:last-child { margin-bottom: 0; }
+.warn { background: var(--warn-wash); }
+
+.final { text-align: center; padding: clamp(2.2rem, 6vw, 3rem) 0 0; margin-top: 1rem; border-top: 1px solid var(--hairline); }
+.final h2 { margin-top: 0; }
+.cta { display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 600; background: var(--accent); color: #fff; border: 1px solid var(--accent); border-radius: 6px; padding: 0.7rem 1.25rem; text-decoration: none; font-size: 1rem; }
+.cta:hover { filter: brightness(1.08); }
+
+.related { padding: 1.4rem 0 2.4rem; border-top: 1px solid var(--hairline); margin-top: 2rem; }
+.related h3 { font-size: 0.85rem; color: var(--muted); margin: 0 0 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.related ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.related a { display: inline-block; border: 1px solid var(--hairline); border-radius: 6px; padding: 0.5rem 0.8rem; color: var(--ink-2); text-decoration: none; font-size: 0.88rem; background: var(--surface); }
+.related a:hover { color: var(--accent); border-color: var(--accent); }
+
+.foot { border-top: 1px solid var(--hairline); padding: 1.4rem 0 2.8rem; }
+.foot p { font-size: 0.8rem; color: var(--muted); max-width: 68ch; margin: 0 0 0.55rem; }
+.foot a { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { * { transition-duration: 1ms !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <a class="brand" href="index.html">Приёмка</a>
+    <a class="tbtn tbtn--cta" href="index.html">Проверить запись</a>
+    <button class="tbtn" id="theme" type="button">Тема</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <article class="post">
+    <p class="kicker">Гайд · аудиокниги</p>
+    <h1>Фоновый шум в записи: почему это причина отказа №1</h1>
+    <p class="lead">Раньше остальных проблем со звуком — гулкости, гула сети, неровной громкости — идёт обычный фоновый шум: вентилятор компьютера, холодильник за стеной, улица за окном. Разбираем, какой шум реально мешает сдать главу и что с ним делать до отправки.</p>
+
+    <div class="factbox">
+      <div class="fact__n">30<span style="font-size:0.4em;color:var(--ink-2)">&nbsp;из&nbsp;50</span></div>
+      <div class="fact__t">
+        <b>заявок в день уходят на перезапись из-за фонового шума</b>
+        <span>Так издательские сервисы Литреса описывают поток тестовых заданий от новых кандидатов в чтецы.</span>
+        <span class="fact__src">По данным блога издательских сервисов Литрес (blog.selfpub.ru)</span>
+      </div>
+    </div>
+
+    <h2>Какой шум считается проблемой</h2>
+    <p>Речь о постоянном фоновом шуме — том, что слышно в паузах между фразами и не связано с конкретной частотой (это отличает его от <a href="gul-seti.html">гула электросети на 50&nbsp;Гц</a>, который лечится иначе). Источники почти всегда бытовые:</p>
+    <ul>
+      <li>кулер компьютера или ноутбука рядом с микрофоном;</li>
+      <li>холодильник, вытяжка, кондиционер — часто за стеной, но микрофон их слышит лучше уха;</li>
+      <li>улица за окном: машины, стройка, соседи;</li>
+      <li>собственный шум помещения — гул труб, вентиляции здания.</li>
+    </ul>
+
+    <h2>Какой порог реально принимают</h2>
+    <p>Официальный порог ACX (стандарт аудиокниг Audible/Amazon, самый прозрачный в отрасли) — шумовой пол не выше <strong>−60&nbsp;dBFS</strong>. У Литреса нет опубликованного числа: в FAQ сказано только качественно — «без шумов и эха, ровная громкость». По отзывам читцов в чате @readerlitres, на практике принимают запись и с шумом до <strong>−50&nbsp;dBFS</strong>, если остальное в порядке — модераторы реагируют на шум резче, когда он сочетается с другими проблемами, а не сам по себе.</p>
+
+    <div class="callout">
+      <p><strong>Как проверить на слух без приборов.</strong> Включите паузу между фразами на полной громкости в наушниках. Если слышен ровный гул или шелест — это и есть шумовой пол, который измеряют. Если тихо и есть только чуть заметное шипение — скорее всего порог пройден.</p>
+    </div>
+
+    <h2>Как снизить шум при записи — раньше, чем в редакторе</h2>
+    <p>Убрать шум после записи получается не полностью и не бесплатно по качеству — легче не добавлять его в сигнал:</p>
+    <ol>
+      <li><strong>Выключите источник, а не боритесь с ним потом.</strong> Кулер, кондиционер, холодильник — если можно вырубить на 20 минут записи, лучший результат даст именно это, а не шумоподавление.</li>
+      <li><strong>Пишите на достаточном уровне входа.</strong> Если микрофон стоит тихо и вы поднимаете громкость уже в редакторе, вместе с голосом поднимается и записанный шум — усиление после записи не улучшает соотношение сигнал/шум. Ставьте уровень так, чтобы речь была громкой уже на записи, с запасом до клиппинга.</li>
+      <li><strong>Уменьшите расстояние до микрофона</strong>, если можете — так голос перекрывает фон сильнее без изменения самого фона.</li>
+      <li><strong>Выбирайте самое тихое время и самую тихую комнату</strong> из доступных — не обязательно студию, достаточно закрытой комнаты без открытых окон вглубь квартиры.</li>
+    </ol>
+
+    <h2>Как убрать шум, если он уже записан</h2>
+    <p>Шумоподавление (noise reduction / denoise) в любом бесплатном редакторе (например, Audacity) работает по одному принципу: вы даёте программе образец «чистого» шума — пару секунд паузы без речи — и она вычитает похожий спектр из всей записи.</p>
+    <ul>
+      <li>Берите образец шума именно из вашей записи, а не из готового пресета — шум у каждой комнаты и техники свой.</li>
+      <li>Начинайте с умеренной настройки. Слишком агрессивное подавление даёт характерный «подводный» или «металлический» призвук голоса — это уже новая проблема, которая тоже слышна на приёмке.</li>
+      <li>Порядок важен: шумоподавление — <strong>до</strong> нормализации громкости (см. статью про <a href="gromkost.html">громкость и пики</a>), иначе вы одновременно поднимете и голос, и оставшийся шум.</li>
+    </ul>
+
+    <div class="callout warn">
+      <p><strong>Когда шум не убрать в редакторе.</strong> Если посторонний звук идёт почти на уровне голоса (не фон, а полноценный второй источник — сосед на весь дубль, стройка вплотную к окну), шумоподавление либо не справится, либо испортит голос до неузнаваемости. В этом случае честнее переписать дубль в момент, когда источник шума молчит, чем пытаться спасти запись постобработкой.</p>
+    </div>
+
+    <div class="final">
+      <h2>Проверить свою запись на шум занимает минуту</h2>
+      <p>Приёмка бесплатно измеряет шумовой пол вашего файла и говорит, укладывается ли он в порог — прямо в браузере, файл никуда не загружается.</p>
+      <a class="cta" href="index.html">Проверить запись <span aria-hidden="true">→</span></a>
+    </div>
+  </article>
+
+  <nav class="related">
+    <h3>Другие частые причины отказа</h3>
+    <ul>
+      <li><a href="gulkost.html">Гулкость (эхо) помещения</a></li>
+      <li><a href="gul-seti.html">Гул электросети 50 Гц</a></li>
+      <li><a href="gromkost.html">Громкость и пики</a></li>
+      <li><a href="about.html">Как работает Приёмка</a></li>
+    </ul>
+  </nav>
+
+  <div class="foot">
+    <p>Пороги для российских площадок собраны из официальных требований ACX и Литреса и практики сообщества @readerlitres; они могут измениться или отличаться для конкретного проекта. Исходный код Приёмки открыт на <a href="https://github.com/napoykin01/priemka">GitHub</a>.</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  document.getElementById("theme").addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var dark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  });
+})();
+</script>
+</body>
+</html>
