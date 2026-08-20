@@ -11,6 +11,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://napoykin01.github.io/priemka/poleznoe.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://napoykin01.github.io/priemka/shum.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

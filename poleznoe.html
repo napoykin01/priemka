@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Полезно знать — частые причины отказа при сдаче озвучки | Приёмка</title>
+<meta name="description" content="Разборы самых частых технических причин отказа при сдаче аудиокниг и подкастов: фоновый шум, гулкость помещения, гул электросети, громкость и пики.">
+<link rel="canonical" href="https://napoykin01.github.io/priemka/poleznoe.html">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:url" content="https://napoykin01.github.io/priemka/poleznoe.html">
+<meta property="og:site_name" content="Приёмка">
+<meta property="og:title" content="Полезно знать — Приёмка">
+<meta property="og:description" content="Разборы самых частых технических причин отказа при сдаче озвучки: шум, гулкость, гул сети, громкость.">
+
+<style>
+:root {
+  color-scheme: light;
+  --plane:     #eceae5;
+  --surface:   #faf9f6;
+  --surface-2: #f2f0ec;
+  --ink:       #1a1917;
+  --ink-2:     #55534d;
+  --muted:     #8a877f;
+  --hairline:  #dcd9d2;
+  --accent:    #2f3aa8;
+  --accent-wash: rgba(47,58,168,0.08);
+  --good:      #0ca30c;
+  --good-wash: rgba(12,163,12,0.11);
+  --warning:   #fab219;
+  --warn-wash: rgba(250,178,25,0.18);
+  --critical:  #d03b3b;
+  --crit-wash: rgba(208,59,59,0.11);
+
+  --serif: "Bookman Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans:  "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono:  Consolas, "Cascadia Mono", ui-monospace, "SF Mono", monospace;
+  --pad: clamp(1rem, 4vw, 2.25rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --plane: #131217; --surface: #1c1b21; --surface-2: #24232a;
+    --ink: #f4f2ee; --ink-2: #b8b4ac; --muted: #86827a; --hairline: #2f2d36;
+    --accent: #8b93f0; --accent-wash: rgba(139,147,240,0.13);
+    --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16); --crit-wash: rgba(208,59,59,0.18);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --plane: #131217; --surface: #1c1b21; --surface-2: #24232a;
+  --ink: #f4f2ee; --ink-2: #b8b4ac; --muted: #86827a; --hairline: #2f2d36;
+  --accent: #8b93f0; --accent-wash: rgba(139,147,240,0.13);
+  --good-wash: rgba(12,163,12,0.18); --warn-wash: rgba(250,178,25,0.16); --crit-wash: rgba(208,59,59,0.18);
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --plane: #eceae5; --surface: #faf9f6; --surface-2: #f2f0ec;
+  --ink: #1a1917; --ink-2: #55534d; --muted: #8a877f; --hairline: #dcd9d2;
+  --accent: #2f3aa8; --accent-wash: rgba(47,58,168,0.08);
+  --good-wash: rgba(12,163,12,0.11); --warn-wash: rgba(250,178,25,0.18); --crit-wash: rgba(208,59,59,0.11);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--plane); color: var(--ink);
+  font-family: var(--sans); font-size: 15.5px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.wrap { max-width: 780px; margin: 0 auto; padding: 0 var(--pad); }
+
+.top { border-bottom: 1px solid var(--hairline); background: var(--surface); position: sticky; top: 0; z-index: 20; }
+.top__in { display: flex; align-items: center; gap: 0.9rem; padding: 0.85rem 0; max-width: 780px; margin: 0 auto; padding-left: var(--pad); padding-right: var(--pad); }
+.brand { font-family: var(--serif); font-size: 1.42rem; font-weight: 700; color: var(--ink); text-decoration: none; margin-right: auto; }
+.tbtn { font: inherit; font-size: 0.78rem; background: none; color: var(--ink-2); border: 1px solid var(--hairline); border-radius: 4px; padding: 0.35rem 0.6rem; cursor: pointer; text-decoration: none; white-space: nowrap; }
+.tbtn:hover { color: var(--accent); border-color: var(--accent); }
+.tbtn--cta { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.tbtn--cta:hover { color: #fff; filter: brightness(1.08); }
+.tbtn--current { color: var(--accent); border-color: var(--accent); }
+
+.hero { padding: clamp(2.2rem, 6vw, 3.4rem) 0 clamp(1.4rem, 4vw, 2rem); }
+.hero h1 { font-family: var(--serif); font-weight: 400; margin: 0 0 0.6rem; font-size: clamp(1.7rem, 1rem + 3vw, 2.5rem); line-height: 1.15; letter-spacing: -0.02em; text-wrap: balance; }
+.hero p { color: var(--ink-2); max-width: 60ch; margin: 0; }
+
+.list { display: grid; gap: 0.9rem; padding: 0.6rem 0 3rem; }
+.card { display: block; background: var(--surface); border: 1px solid var(--hairline); border-radius: 10px; padding: clamp(1.1rem, 4vw, 1.5rem); text-decoration: none; color: inherit; }
+.card:hover { border-color: var(--accent); }
+.card__k { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 0.4rem; }
+.card h2 { font-family: var(--serif); font-weight: 700; margin: 0 0 0.4rem; font-size: 1.2rem; color: var(--ink); }
+.card p { margin: 0; color: var(--ink-2); font-size: 0.92rem; max-width: 60ch; }
+
+.foot { border-top: 1px solid var(--hairline); padding: 1.4rem 0 2.8rem; }
+.foot p { font-size: 0.8rem; color: var(--muted); max-width: 68ch; margin: 0; }
+.foot a { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { * { transition-duration: 1ms !important; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <a class="brand" href="index.html">Приёмка</a>
+    <a class="tbtn tbtn--current" href="poleznoe.html">Полезно знать</a>
+    <a class="tbtn tbtn--cta" href="index.html">Проверить запись</a>
+    <button class="tbtn" id="theme" type="button">Тема</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Полезно знать</h1>
+    <p>Разборы самых частых технических причин отказа при сдаче озвучки — что это, почему это происходит и что с этим делать до отправки, а не после отказа.</p>
+  </section>
+
+  <div class="list">
+    <a class="card" href="shum.html">
+      <p class="card__k">Причина №1</p>
+      <h2>Фоновый шум</h2>
+      <p>30 из 50 заявок в Литрес Чтец уходят на перезапись из-за шума. Какой порог реально принимают и как убрать шум без потери качества голоса.</p>
+    </a>
+    <a class="card" href="gulkost.html">
+      <p class="card__k">Причина №2</p>
+      <h2>Гулкость (эхо) помещения</h2>
+      <p>Почему реверберацию комнаты не убрать полностью в редакторе и как дёшево заглушить помещение для записи.</p>
+    </a>
+    <a class="card" href="gul-seti.html">
+      <p class="card__k">Узнаётся по тону 50 Гц</p>
+      <h2>Гул электросети</h2>
+      <p>Откуда берётся гул в паузах записи — от зарядки ноутбука до земляной петли — и как его найти и убрать.</p>
+    </a>
+    <a class="card" href="gromkost.html">
+      <p class="card__k">RMS, LUFS, пик, true peak</p>
+      <h2>Громкость и пики</h2>
+      <p>Что означает каждая метрика и в каком порядке их выставлять, чтобы не срезать пики и не получить скачки громкости между главами.</p>
+    </a>
+  </div>
+
+  <div class="foot">
+    <p>Исходный код Приёмки открыт на <a href="https://github.com/napoykin01/priemka">GitHub</a>.</p>
+  </div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  document.getElementById("theme").addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme");
+    var dark = cur ? cur === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  });
+})();
+</script>
+</body>
+</html>
